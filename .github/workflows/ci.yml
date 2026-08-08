@@ -144,7 +144,9 @@ jobs:
           H2=$(python3 -c 'import json;print(json.load(open(".github/cyberready/evidence/hpurl-pointer.json"))["state_hash"])')
           test "$H1" = "$H2"
 
-  gauntlet:
+  redteam-pilot:
+    # Stable check name for branch protection: merges to main require this green.
+    name: redteam-pilot
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -154,10 +156,21 @@ jobs:
           go-version: "1.23.x"
       - name: Build
         run: go build -o bin/cyberready ./cmd/cyberready
+      - name: Redteam pilot scoreboard (required)
+        run: ./scripts/redteam-pilot.sh
+
+  gauntlet:
+    runs-on: ubuntu-latest
+    needs: [test, redteam-pilot]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.23.x"
+      - name: Build
+        run: go build -o bin/cyberready ./cmd/cyberready
       - name: Claim safety (docs + runtime)
         run: ./scripts/claim-safety.sh
-      - name: Redteam pilot scoreboard
-        run: ./scripts/redteam-pilot.sh
       - name: Heal smoke + baseline ratchet + dead-ends
         run: ./scripts/gauntlet-ratchet.sh
       - name: Install-from-release smoke

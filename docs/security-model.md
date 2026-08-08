@@ -17,6 +17,7 @@ Pilot-prod (CLI + Action on other git repos) means exactly these three invariant
 ### Pilot deploy + freeze
 
 - Grade: `./scripts/redteam-pilot.sh` must be green.
+- **CI required check:** merges to `main` require the GitHub Actions job named **`redteam-pilot`** green (enable it under branch protection if not already). Feature count cannot replace this scoreboard.
 - Pin: Action/consumers use `@v0.3.1` (prefer tag + commit SHA).
 - **30-day trust-surface freeze** after `v0.3.1`: Action binary resolve, `SafeJoin` / pack path jail, attest OCC / `--allow-dirty` honesty, and claim-safety — bugfixes only; no new trust-surface features.
 

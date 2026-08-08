@@ -1,3 +1,9 @@
+# GTM OSS — NON-PRODUCT / INTERNAL GTM
+
+> **NON-PRODUCT / INTERNAL GTM — not for Pages, not for adopters.**
+> Do not link this tree from the product README. GitHub Pages quarantine refuses `*gtm*` under `site/`.
+> Claim-safety still applies to copy here; this is ops amplify kit only.
+
 # GTM OSS — claim-safe templates
 
 Manual amplify kit for X, LinkedIn, and README badges. **No auto-DM. No spam bots.**

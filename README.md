@@ -63,4 +63,4 @@ Gate pass is **not** certification, CE marking, or notified-body approval. CI en
 
 Exit codes: **0** pass · **1** gates/error · **2** usage/env.
 
-Deep docs: [Intent vs Scope](docs/intent-vs-scope.md) · [Write your own pack](docs/write-your-own-pack.md) · [Coreward bridge](docs/coreward-bridge.md).
+Deep docs: [Intent vs Scope](docs/intent-vs-scope.md) · [Write your own pack](docs/write-your-own-pack.md) · [Coreward bridge](docs/coreward-bridge.md) · [Docs index](docs/README.md).
