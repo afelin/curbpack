@@ -170,7 +170,7 @@ func cmdDemo(args []string) error {
 }
 
 func cmdInit(args []string) error {
-	tty.PrintHeader("INITIALIZING COMPLIANCE WORKSPACE")
+	tty.PrintHeader("cyberready init")
 	root, err := gitutil.RepoRoot("")
 	if err != nil {
 		return usageErr("workspace is not a git repository")
@@ -690,7 +690,7 @@ func cmdAsk(args []string) error {
 }
 
 func cmdAttest(args []string) error {
-	tty.PrintHeader("CRYPTO ATTESTATION ENGINE")
+	tty.PrintHeader("cyberready attest")
 	allowDirty := false
 	for _, a := range args {
 		if a == "--allow-dirty" {

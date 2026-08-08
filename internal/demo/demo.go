@@ -179,6 +179,8 @@ func Run(opts Options) error {
 	if opts.KeepDir || opts.OutDir != "" {
 		fmt.Printf("%s\n", tty.C(tty.Dim, "sandbox kept at: "+dir))
 	}
+	fmt.Printf("%s\n", tty.C(tty.Dim, "next on your repo: cyberready init && cyberready check"))
+	fmt.Printf("%s\n", tty.C(tty.Dim, "CI-only: uses: afelin/cyberready@v0.4.0  (heal: true)"))
 	fmt.Printf("%s\n", tty.C(tty.Dim, Claim))
 	return nil
 }

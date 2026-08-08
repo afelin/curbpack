@@ -81,20 +81,20 @@ func Run(opts Options) error {
 					printCheck("pre-commit hook", true, detail)
 				}
 			} else {
-				printCheck("pre-commit hook", true, "not enabled (optional: init --hooks)")
+				printCheck("pre-commit hook", true, "not enabled (optional: cyberready init)")
 			}
 		}
 		skill := filepath.Join(root, ".cursor", "skills", "cyberready", "SKILL.md")
 		if _, err := os.Stat(skill); err == nil {
 			printCheck("Cursor skill", true, skill)
 		} else {
-			printCheck("Cursor skill", true, "absent (optional: init --skill)")
+			printCheck("Cursor skill", true, "absent (optional: cyberready init)")
 		}
 		tasks := filepath.Join(root, ".vscode", "tasks.json")
 		if _, err := os.Stat(tasks); err == nil {
 			printCheck("VS Code/Cursor tasks", true, tasks)
 		} else {
-			printCheck("VS Code/Cursor tasks", true, "absent (optional: init --ide)")
+			printCheck("VS Code/Cursor tasks", true, "absent (optional: cyberready init)")
 		}
 	} else {
 		printCheck("git repository", true, "cwd is not a product repo (ok — use cyberready demo)")
