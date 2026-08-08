@@ -26,6 +26,7 @@ import (
 	"github.com/afelin/cyberready/internal/tty"
 	"github.com/afelin/cyberready/internal/validate"
 	"github.com/afelin/cyberready/internal/vex"
+	"github.com/afelin/cyberready/internal/workflowdata"
 )
 
 // Version is set at release build via -ldflags "-X github.com/afelin/cyberready/internal/cli.Version=..."
@@ -133,8 +134,9 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Ladder:\n")
 	fmt.Fprintf(os.Stderr, "  doctor           Environment confidence\n")
 	fmt.Fprintf(os.Stderr, "  demo [--open]    Sandbox check (browser only with --open)\n")
-	fmt.Fprintf(os.Stderr, "  init [--bare] [--packs a,b]\n")
+	fmt.Fprintf(os.Stderr, "  init [--bare] [--packs a,b] [--workflow]\n")
 	fmt.Fprintf(os.Stderr, "                   Default: house-policy + hooks + skill + ide\n")
+	fmt.Fprintf(os.Stderr, "                   --workflow: write .github/workflows/cyberready.yml if missing\n")
 	fmt.Fprintf(os.Stderr, "  check [--heal]   Daily loop\n")
 	fmt.Fprintf(os.Stderr, "  prepare-release  Review-pack + evidence\n")
 	fmt.Fprintf(os.Stderr, "  attest           Human Git Notes capsule\n\n")
@@ -183,10 +185,12 @@ func cmdInit(args []string) error {
 	_ = os.MkdirAll(filepath.Join(crPath, "evidence"), 0o755)
 
 	// Opinionated cold start: house-policy + hooks/skill/ide unless --bare.
+	// Workflow is opt-in (--workflow) to avoid surprising CI commits.
 	packList := []string{"house-policy"}
 	hooks := true
 	skill := true
 	ide := true
+	writeWorkflow := false
 	explicitPacks := false
 	for i := 0; i < len(args); i++ {
 		a := args[i]
@@ -195,6 +199,7 @@ func cmdInit(args []string) error {
 			hooks = false
 			skill = false
 			ide = false
+			writeWorkflow = false
 		case a == "--packs" && i+1 < len(args):
 			packList = config.ParsePacksFlag(args[i+1])
 			explicitPacks = true
@@ -215,6 +220,8 @@ func cmdInit(args []string) error {
 			skill = true
 		case a == "--ide":
 			ide = true
+		case a == "--workflow":
+			writeWorkflow = true
 		case a == "--no-hooks":
 			hooks = false
 		case a == "--no-skill":
@@ -297,6 +304,18 @@ func cmdInit(args []string) error {
 			return err
 		}
 		tty.PrintStatus("VS Code tasks", true, dest)
+	}
+
+	if writeWorkflow {
+		dest, created, err := workflowdata.Install(root)
+		if err != nil {
+			return err
+		}
+		if created {
+			tty.PrintStatus("Action workflow", true, dest+" (created)")
+		} else {
+			tty.PrintStatus("Action workflow", true, dest+" (exists, not overwritten)")
+		}
 	}
 
 	fmt.Printf("\n%s\n", tty.C(tty.Bold+tty.Green, "[+] Init complete. Next: cyberready check"))

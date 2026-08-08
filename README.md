@@ -62,6 +62,7 @@ Gate pass is **not** certification, CE marking, or notified-body approval. CI en
 | `sock` | Optional private Unix IPC (Coreward) |
 | `init --bare` | Minimal scaffold (no hooks/skill/ide) |
 | `init --packs a,b` | Override default house-policy packs |
+| `init --workflow` | Opt-in: write `.github/workflows/cyberready.yml` if missing |
 
 Exit codes: **0** pass · **1** gates/error · **2** usage/env.
 
