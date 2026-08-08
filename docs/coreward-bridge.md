@@ -67,3 +67,19 @@ cyberready sock --path "$XDG_RUNTIME_DIR/cyberready/cyberready.sock" --repo /pat
 ```
 
 See also: [Intent vs Scope](intent-vs-scope.md) (IP / chat boundary).
+
+## Dogfood checklist (explain-packet ↔ Coreward)
+
+Run once before marketing the tutor loop:
+
+1. In a product repo: `cyberready check` (red is fine) then `cyberready export --explain-packet`.
+2. Confirm `.github/cyberready/cache/explain-packet.json` has `<untrusted_metadata>`, no `/Users/`/`/home/`, no PEM blobs (`go test ./internal/contract/ -run Coreward` / `PacketLooksAirlocked`).
+3. Coreward: read packet body only into chat (MCP `cyberready_explain_packet` or sock `explain_packet`) — never raw source.
+4. After tutor proposes a fix, apply in the editor; **do not** trust the model.
+5. Re-check: sock `validate_delta` or `cyberready check` / MCP `cyberready_validate_delta` — exit/ok is authoritative.
+6. Only then may chat say “fixed”. Attest remains human-only.
+7. Missing sock → fail-open; never block promote solely because CyberReady is absent.
+8. Default `CYBERREADY_EXPLAIN_ALLOW_CLOUD=0`; cloud export only with explicit `=1`.
+9. In-repo fixture: `internal/contract/explain_coreward_consumer_test.go`.
+10. Coreward bridge: `vibe-engine-os/src/release-gate/cyberready-bridge.ts` (`consumeExplainPacket` + recheck note).
+
