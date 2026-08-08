@@ -28,6 +28,7 @@ cyberready prepare-release # review-pack/ when you need artifacts
 cyberready attest          # human sign-off; unsigned ≠ verified
 ```
 
+Runs deposit cache + review-pack; attest when human-ready.
 ## GitHub Action
 
 ```yaml

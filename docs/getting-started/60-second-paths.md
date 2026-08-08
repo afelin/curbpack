@@ -54,6 +54,8 @@ Maintainer bar: `./scripts/time-to-green.sh` (demo + init→check wall-clock; fa
 2. Or open the HPURL proof page (`proof/index.html`) with a hash fragment.
 3. One screen: thermometer, top gaps, disclaimer — no account required. Not a certificate.
 
+Runs deposit cache + review-pack under `.github/cyberready/`; attest when a human is ready.
+
 ## Advanced
 
 | Flag / path | When |

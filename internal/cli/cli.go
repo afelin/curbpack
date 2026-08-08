@@ -403,6 +403,9 @@ func cmdCheck(args []string) error {
 	}
 	packIDs, jsonOut, diffOnly, wantHints, applyStub, heal := parseValidateFlags(args)
 
+	// Snapshot prior evidence deposit before validate overwrites cache.
+	prior := loadPriorCache(root)
+
 	if !jsonOut {
 		tty.PrintHeader("CYBERREADY CHECK")
 	}
@@ -449,13 +452,16 @@ func cmdCheck(args []string) error {
 		enc.SetIndent("", "  ")
 		_ = enc.Encode(res.Payload)
 	} else if res.Passed {
-		// Green: one thermometer line + claim dim line (zero babysitting).
+		// Green: thermometer + claim + optional one-line accumulation whisper.
 		if tty.IsTerminal {
 			tty.RenderThermometer(res.Score)
 		} else {
 			fmt.Printf("readiness=%d%% gates=green\n", res.Score)
 		}
 		fmt.Printf("%s\n", tty.C(tty.Dim, "Prepares evidence for human review — not a conformity assessment."))
+		if line := accumulationDeltaLine(prior, res.Score); line != "" {
+			fmt.Printf("%s\n", tty.C(tty.Dim, line))
+		}
 	} else {
 		if tty.IsTerminal {
 			tty.RenderThermometer(res.Score)
