@@ -1,0 +1,30 @@
+name: time-to-green
+
+# Maintainer activation smoke — optional / manual. Not required for merges.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays 06:17 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  ttg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.23.x"
+      - name: Build
+        run: go build -o bin/cyberready ./cmd/cyberready
+      - name: Time-to-green smoke
+        run: ./scripts/time-to-green.sh
+      - name: Forced failure (broken BIN)
+        run: |
+          set +e
+          CYBERREADY_BIN=/nonexistent/cyberready ./scripts/time-to-green.sh
+          code=$?
+          set -e
+          test "$code" -ne 0

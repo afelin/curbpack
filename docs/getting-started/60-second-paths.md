@@ -46,6 +46,8 @@ Optional local equivalent: `cyberready init --workflow` writes the same drop-in 
 
 Local Action-equivalent smoke: temp git repo **without** `.cyberready.json` → `cyberready check --heal` → exit 0 (or deterministic red after stubs if content gates remain).
 
+Maintainer bar: `./scripts/time-to-green.sh` (demo + init→check wall-clock; fail if &gt;10 min).
+
 ## Decision-maker
 
 1. Open the supplier’s `review-pack/buyer-onepager.html` (from `prepare-release` or the Action artifact), or the committed sample at `site/samples/onepager.html`.
