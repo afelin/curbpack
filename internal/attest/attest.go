@@ -210,6 +210,9 @@ func ParseHPURLFragment(frag string) (HPURLParts, bool) {
 	return parts, true
 }
 
+// command builds an *exec.Cmd (overridable in tests via fake PATH tooling).
+var command = exec.Command
+
 // trySSHAgentSign signs via ssh-keygen -Y when SSH_AUTH_SOCK is set.
 // Returns verified=true only when a real signature file was produced.
 // agent-bind placeholders are never treated as verified signatures.
@@ -220,7 +223,7 @@ func trySSHAgentSign(repoRoot, payload string) (sig string, identity string, ver
 	if strings.TrimSpace(os.Getenv("SSH_AUTH_SOCK")) == "" {
 		return "", "", false
 	}
-	list := exec.Command("ssh-add", "-L")
+	list := command("ssh-add", "-L")
 	out, err := list.Output()
 	if err != nil || len(out) == 0 {
 		return "", "", false
@@ -259,7 +262,7 @@ func trySSHAgentSign(repoRoot, payload string) (sig string, identity string, ver
 	defer os.Remove(tmpOut)
 
 	// -f = public key (agent resolves private); final arg = data to sign.
-	cmd := exec.Command("ssh-keygen", "-Y", "sign", "-f", tmpPub.Name(), "-n", "cyberready@attest", tmpIn.Name())
+	cmd := command("ssh-keygen", "-Y", "sign", "-f", tmpPub.Name(), "-n", "cyberready@attest", tmpIn.Name())
 	cmd.Dir = repoRoot
 	if err := cmd.Run(); err != nil {
 		return "", who, false
