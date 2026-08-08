@@ -9,7 +9,7 @@
 | [Write your own pack](write-your-own-pack.md) | Pack authoring |
 | [Coreward bridge](coreward-bridge.md) | Optional tutor IPC + dogfood checklist |
 | [Packs update](packs-update.md) | Pack refresh / air-gap |
-| [Getting started](getting-started/) | Onboarding notes |
+| [Getting started](getting-started/60-second-paths.md) | First move — 60-second paths |
 | [Launch readiness](launch-readiness.md) | Internal launch checklist |
 
 ## Ops (not product)

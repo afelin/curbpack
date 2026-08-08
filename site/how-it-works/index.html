@@ -31,7 +31,7 @@
       <p>A <strong>rule pack</strong> is a JSON file of checks (files present, banned dependency versions, forbidden text patterns). Packs encode policy: house rules, CRA-style annex drafts, or sector templates. The binary does not hard-code an industry.</p>
 
       <h3>2. Local check</h3>
-      <p><code>cyberready check</code> evaluates packs against your git repository on disk. Results are dual: machine JSON (Gate Failure list) and markdown humans/agents can read. Exit code 0 means gates green; 1 means findings remain.</p>
+      <p>First move on a product repo: <code>cyberready init</code> then <code>cyberready check</code>. Check evaluates packs against your git repository on disk. Results are dual: machine JSON (Gate Failure list) and markdown humans/agents can read. Exit code 0 means gates green; 1 means findings remain.</p>
 
       <h3>3. Review pack</h3>
       <p><code>prepare-release</code> writes a <strong>review pack</strong>: layered reports, optional software bill of materials (SBOM) summary, and a buyer one-pager HTML. Daily <code>check</code> does not open or regenerate that HTML page.</p>

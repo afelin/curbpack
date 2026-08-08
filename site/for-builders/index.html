@@ -25,15 +25,16 @@
 
     <section class="section prose">
       <h2>For builders</h2>
-      <p class="sub">Install once. Check daily. Open the browser only when you mean to.</p>
+      <p class="sub">One first move. Under ten minutes to green. Open the browser only when you mean to.</p>
+      <p><strong>First move</strong> — pick exactly one:</p>
       <ol>
-        <li>Install with the checksum-verified script (macOS/Linux) from the <a href="https://github.com/afelin/cyberready#install-no-go">README</a>.</li>
-        <li><code>cyberready doctor</code> then <code>cyberready demo</code> — prints a one-pager path; add <code>--open</code> only if you want the OS to open it.</li>
-        <li>In your product repo: <code>cyberready init --packs house-policy</code> then <code>cyberready check</code>.</li>
-        <li>Before a review wave: <code>prepare-release</code>, then a human <code>attest</code>.</li>
+        <li><strong>Safe try:</strong> install → <code>cyberready doctor</code> → <code>cyberready demo</code> (prints a one-pager path; add <code>--open</code> only if you want the OS to open it).</li>
+        <li><strong>Product repo:</strong> <code>cyberready init</code> then <code>cyberready check</code> (defaults: house-policy + hooks + skill + ide).</li>
+        <li><strong>CI-only:</strong> drop the example workflow pinned <code>@v0.4.0</code> with <code>heal: true</code>.</li>
       </ol>
+      <p>Before a review wave: <code>prepare-release</code>, then a human <code>attest</code>.</p>
       <p>Agents: use the Cursor skill; never loop on <code>demo</code> to “show the page.” Link the <a href="../samples/onepager.html">static sample</a> instead.</p>
-      <p class="muted">Write your own pack: see repo docs <code>docs/write-your-own-pack.md</code>.</p>
+      <p class="muted">Recipes: repo <code>docs/getting-started/60-second-paths.md</code>. Packs: <code>docs/write-your-own-pack.md</code>.</p>
     </section>
 
     <footer class="site-footer">

@@ -5,7 +5,7 @@
 
 **CyberReady+** — local evidence CLI. Packs encode policy. Humans review. Not a certificate of conformity.
 
-[Site](https://afelin.github.io/cyberready/) · [Intent vs Scope](docs/intent-vs-scope.md) · [White paper](papers/cyberready-whitepaper.md) · [Security model](docs/security-model.md)
+[Site](https://afelin.github.io/cyberready/) · [**First move (60s)**](docs/getting-started/60-second-paths.md) · [Intent vs Scope](docs/intent-vs-scope.md) · [White paper](papers/cyberready-whitepaper.md) · [Security model](docs/security-model.md)
 
 ## Install
 
@@ -22,7 +22,7 @@ From source: `go build -o bin/cyberready ./cmd/cyberready`
 
 ```bash
 cd /path/to/your/product   # git repo
-cyberready init            # hooks + skill + IDE + house-policy (use --bare for minimal)
+cyberready init            # house-policy + hooks + skill + ide (use --bare for minimal)
 cyberready check           # daily loop — never opens a one-pager
 cyberready prepare-release # review-pack/ when you need artifacts
 cyberready attest          # human sign-off; unsigned ≠ verified
@@ -38,9 +38,11 @@ cyberready attest          # human sign-off; unsigned ≠ verified
     upload_sarif: "true"
 ```
 
-Pin **`@v0.4.0`** (tag + release checksums). Empty `version` builds from this module when `go` is present, otherwise downloads **v0.4.0** (never floating `latest`). Prefer SARIF/annotations over long PR comments.
+Pin **`@v0.4.0`** (tag + release checksums). Empty `version` builds from this module when `go` is present, otherwise downloads **v0.4.0** (never floating `latest`). Prefer SARIF/annotations over long PR comments. Drop-in example: [`examples/workflows/cyberready-check.yml`](examples/workflows/cyberready-check.yml).
 
 **Pilot deploy:** run `./scripts/redteam-pilot.sh` before promoting a pin.
+
+**First move:** pick one path above (safe try / product repo / CI). Full recipes: [60-second paths](docs/getting-started/60-second-paths.md).
 
 ## Claim safety
 

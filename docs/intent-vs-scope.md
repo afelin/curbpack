@@ -23,4 +23,6 @@ repo → CyberReady (gates, packs, RKG, attest)
 
 CyberReady decides pass/fail. Chat may draft prose or remediation suggestions. Chat never greenlights gates and never writes attest capsules.
 
+**Activate in 60s:** [getting-started / 60-second paths](getting-started/60-second-paths.md).
+
 See also: [Coreward bridge](coreward-bridge.md) · [Write your own pack](write-your-own-pack.md) · [Security model](security-model.md)
