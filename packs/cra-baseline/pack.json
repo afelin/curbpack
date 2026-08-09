@@ -22,9 +22,11 @@
       "path": "docs/annex-vii/risk_assessment.md",
       "min_bytes": 200,
       "require_headers": ["# Risk Assessment", "## Product Overview", "## Identified Risks"],
+      "bind_repo_token": true,
+      "require_tree_paths": ["README.md"],
       "description": "CRA Annex VII risk assessment draft missing, too short, or lacking required section headers.",
-      "remediation": "Populate docs/annex-vii/risk_assessment.md with product-specific risk models (no placeholders).",
-      "expected": "Risk assessment exceeds structural thresholds and contains required headers."
+      "remediation": "Populate docs/annex-vii/risk_assessment.md with product-specific risk models (no placeholders). Mention this product (package.json name, go.mod module, or repo directory name) and keep README.md present.",
+      "expected": "Risk assessment exceeds structural thresholds, contains required headers, and is bound to this repository."
     },
     {
       "id": "CRA-ANNEX-VII-SUPPORT",
@@ -34,9 +36,10 @@
       "path": "docs/annex-vii/support_period.md",
       "min_bytes": 120,
       "require_headers": ["# Support Period", "## End of Support"],
+      "bind_repo_token": true,
       "description": "Support period rationale missing or incomplete.",
-      "remediation": "Declare a concrete product support period and rationale in docs/annex-vii/support_period.md.",
-      "expected": "Support period document present with End of Support section."
+      "remediation": "Declare a concrete product support period and rationale in docs/annex-vii/support_period.md. Mention this product (package.json name, go.mod module, or repo directory name).",
+      "expected": "Support period document present with End of Support section and repo-bound product mention."
     },
     {
       "id": "CRA-ANNEX-VII-MANUAL",
@@ -46,9 +49,10 @@
       "path": "docs/annex-vii/user_manual_security.md",
       "min_bytes": 150,
       "require_headers": ["# User Manual — Security", "## Secure Configuration", "## Product Disposal"],
+      "bind_repo_token": true,
       "description": "Security-relevant user manual sections missing.",
-      "remediation": "Add Secure Configuration and Product Disposal guidance.",
-      "expected": "User manual security sections present."
+      "remediation": "Add Secure Configuration and Product Disposal guidance. Mention this product (package.json name, go.mod module, or repo directory name).",
+      "expected": "User manual security sections present and bound to this repository."
     },
     {
       "id": "CRA-ANTI-PLACEHOLDER",

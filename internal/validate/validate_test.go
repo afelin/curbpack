@@ -82,11 +82,12 @@ x x x x x x x x x x
 func TestAntiPlaceholder(t *testing.T) {
 	dir := t.TempDir()
 	initGit(t, dir)
+	mustWrite(t, filepath.Join(dir, "package.json"), `{"name":"contoso-gateway","version":"1.0.0"}`+"\n")
 	mustWrite(t, filepath.Join(dir, "docs/annex-vii/risk_assessment.md"), `# Risk Assessment
 
 ## Product Overview
 
-TODO: fill this in with lorem ipsum
+contoso-gateway — TODO: fill this in with lorem ipsum
 
 ## Identified Risks
 
@@ -96,13 +97,13 @@ placeholder content here for testing
 
 ## End of Support
 
-Supported until 2030-12-31 with security patches.
+contoso-gateway is supported until 2030-12-31 with security patches.
 `)
 	mustWrite(t, filepath.Join(dir, "docs/annex-vii/user_manual_security.md"), `# User Manual — Security
 
 ## Secure Configuration
 
-Use TLS everywhere and rotate credentials quarterly with documented runbooks.
+Use TLS everywhere on contoso-gateway and rotate credentials quarterly with documented runbooks.
 
 ## Product Disposal
 
@@ -128,6 +129,88 @@ Wipe customer data and destroy keys before hardware disposal.
 	}
 	if !found {
 		t.Fatalf("expected CRA-ANTI-PLACEHOLDER, got %#v", res.Payload.Failures)
+	}
+}
+
+func TestBindRepoTokenRejectsGenericLLMAnnex(t *testing.T) {
+	dir := t.TempDir()
+	initGit(t, dir)
+	mustWrite(t, filepath.Join(dir, "package.json"), `{"name":"acme-sensor","version":"1.0.0"}`+"\n")
+	// Structurally complete annex with no product/repo token — hollow green theater.
+	mustWrite(t, filepath.Join(dir, "docs/annex-vii/risk_assessment.md"), `# Risk Assessment
+
+## Product Overview
+
+In today's digital landscape, organizations must manage cyber risk for connected products with a structured approach.
+
+## Identified Risks
+
+| Risk ID | Description | Severity | Mitigation |
+|---------|-------------|----------|------------|
+| R-001   | Generic admin UI risk | High | MFA + lockout |
+
+## Residual Risk Statement
+
+Residual risk is accepted by the product owner after mitigations above.
+`)
+	mustWrite(t, filepath.Join(dir, "docs/annex-vii/support_period.md"), `# Support Period
+
+## End of Support
+
+Security updates are provided for five years from the general availability date of each major release.
+
+## Rationale
+
+Aligned with expected deployment lifetime and spare-parts availability.
+`)
+	mustWrite(t, filepath.Join(dir, "docs/annex-vii/user_manual_security.md"), `# User Manual — Security
+
+## Secure Configuration
+
+Disable default accounts, enforce MFA, and restrict management interfaces to a trusted network.
+
+## Product Disposal
+
+Factory-reset the appliance, shred exported key material, and confirm cloud tenant deletion.
+`)
+
+	res, err := validate.Run(validate.Options{
+		RepoRoot: dir,
+		PackIDs:  []string{"cra-baseline"},
+		Quiet:    true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Passed {
+		t.Fatal("expected bind_repo_token failure for generic LLM annex")
+	}
+	foundBind := false
+	for _, f := range res.Payload.Failures {
+		if f.GateID == "CRA-ANNEX-VII-RISK" && strings.Contains(f.SanitizedDescription, "bind_repo_token") {
+			foundBind = true
+		}
+	}
+	if !foundBind {
+		t.Fatalf("expected CRA-ANNEX-VII-RISK bind_repo_token, got %#v", res.Payload.Failures)
+	}
+}
+
+func TestBindRepoTokenPassesWithPackageName(t *testing.T) {
+	dir := t.TempDir()
+	initGit(t, dir)
+	writeGoodCRA(t, dir)
+
+	res, err := validate.Run(validate.Options{
+		RepoRoot: dir,
+		PackIDs:  []string{"cra-baseline"},
+		Quiet:    true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !res.Passed {
+		t.Fatalf("expected pass with package.json name token, failures=%v", res.Payload.Failures)
 	}
 }
 
@@ -292,11 +375,12 @@ Preferred-Languages: en
 
 func writeGoodCRA(t *testing.T, dir string) {
 	t.Helper()
+	mustWrite(t, filepath.Join(dir, "package.json"), `{"name":"contoso-gateway","version":"1.0.0","dependencies":{}}`+"\n")
 	mustWrite(t, filepath.Join(dir, "docs/annex-vii/risk_assessment.md"), `# Risk Assessment
 
 ## Product Overview
 
-The Contoso Sensor Gateway forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
+The contoso-gateway product forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
 
 ## Identified Risks
 
@@ -312,7 +396,7 @@ Residual risk is accepted by the product owner after mitigations above.
 
 ## End of Support
 
-Security updates are provided for five years from the general availability date of each major release.
+Security updates for contoso-gateway are provided for five years from the general availability date of each major release.
 
 ## Rationale
 
@@ -322,7 +406,7 @@ Aligned with expected clinical deployment lifetime and spare-parts availability.
 
 ## Secure Configuration
 
-Disable default accounts, enforce MFA, and restrict management interfaces to the hospital VLAN.
+Disable default accounts on contoso-gateway, enforce MFA, and restrict management interfaces to the hospital VLAN.
 
 ## Product Disposal
 

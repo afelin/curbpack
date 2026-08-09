@@ -20,7 +20,8 @@ import (
 	"github.com/afelin/cyberready/internal/tty"
 )
 
-var placeholderRE = regexp.MustCompile(`(?i)(lorem ipsum|\[insert[^\]]*\]|TODO:|FIXME:|placeholder|xxxx|<\s*company\s*>)`)
+// High-signal placeholders / LLM boilerplate — alternation kept short for ReDoS safety.
+var placeholderRE = regexp.MustCompile(`(?i)(lorem ipsum|\[insert[^\]]*\]|TODO:|FIXME:|placeholder|xxxx|<\s*company\s*>|as an ai language model|certainly[!.,]?\s+here('s| is)|in today's digital landscape|delve into|it is important to note that)`)
 
 // Options controls validate / check.
 type Options struct {
@@ -232,7 +233,76 @@ func checkFilePresent(root string, rule packs.Rule) []ir.Failure {
 	if rule.MinWords > 0 && wordCount(content) < rule.MinWords {
 		return []ir.Failure{failFromRule(rule, rel, fmt.Sprintf("min_words=%d not met (have %d)", rule.MinWords, wordCount(content)))}
 	}
+	if rule.BindRepoToken {
+		token, ok := resolveRepoToken(root)
+		if !ok {
+			return []ir.Failure{failFromRule(rule, rel, "bind_repo_token: no resolvable repo token (directory name, package.json name, or go.mod module)")}
+		}
+		if !strings.Contains(content, token) {
+			return []ir.Failure{failFromRule(rule, rel, "bind_repo_token: draft must mention repo token "+token)}
+		}
+	}
+	for _, tp := range rule.RequireTreePaths {
+		full, clean, err := safeJoin(root, tp)
+		if err != nil {
+			return []ir.Failure{failFromRule(rule, rel, "require_tree_paths: "+err.Error())}
+		}
+		if _, err := os.Stat(full); err != nil {
+			return []ir.Failure{failFromRule(rule, rel, "require_tree_paths: missing "+clean)}
+		}
+	}
 	return nil
+}
+
+// resolveRepoToken returns a best-effort product token for bind_repo_token gates.
+// Preference: package.json "name", then go.mod module path, then directory basename.
+func resolveRepoToken(root string) (string, bool) {
+	if name, ok := readPackageJSONName(root); ok {
+		return name, true
+	}
+	if mod, ok := readGoModModule(root); ok {
+		return mod, true
+	}
+	base := filepath.Base(filepath.Clean(root))
+	if base == "" || base == "." || base == string(filepath.Separator) {
+		return "", false
+	}
+	return base, true
+}
+
+func readPackageJSONName(root string) (string, bool) {
+	b, err := os.ReadFile(filepath.Join(root, "package.json"))
+	if err != nil {
+		return "", false
+	}
+	var meta struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(b, &meta); err != nil {
+		return "", false
+	}
+	name := strings.TrimSpace(meta.Name)
+	if name == "" {
+		return "", false
+	}
+	return name, true
+}
+
+func readGoModModule(root string) (string, bool) {
+	b, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return "", false
+	}
+	for _, line := range strings.Split(string(b), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "module ") {
+			mod := strings.TrimSpace(strings.TrimPrefix(line, "module "))
+			if mod != "" {
+				return mod, true
+			}
+		}
+	}
+	return "", false
 }
 
 func wordCount(s string) int {
