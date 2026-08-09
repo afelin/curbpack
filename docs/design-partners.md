@@ -48,4 +48,6 @@ Ship the rhythm in-repo; the calendar is human-operated.
 
 OPA/LSP/tracers · badge marketplace · `gtm-oss` on site · CE language · second pin · expanding pack catalog before 5 partners have week-2 greens.
 
+**Pack catalog freeze:** only `house-policy`, `cra-baseline`, `medtech-iec62304`. `scripts/redteam-pilot.sh` fails on any new pack id under `packs/` or the embed twin. Unlock requires freeze review + an explicit PR that updates the allowlist — not an env escape hatch in CI.
+
 Also mirrored in [launch readiness](launch-readiness.md) and [Intent vs Scope](intent-vs-scope.md).

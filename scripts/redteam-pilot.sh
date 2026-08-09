@@ -119,6 +119,34 @@ else
   bad "9 explain-packet airlock regression"
 fi
 
+# --- 10) Pack catalog freeze — only allowlisted pack ids ---
+# Unlock: freeze review + explicit PR that updates this allowlist (no CI env escape hatch).
+ALLOWED_PACK_IDS=$'cra-baseline\nhouse-policy\nmedtech-iec62304'
+pack_allow_fail=0
+for root in packs internal/packs/data; do
+  [[ -d "$root" ]] || continue
+  while IFS= read -r -d '' d; do
+    id="$(basename "$d")"
+    [[ "$id" == _* ]] && continue
+    if ! printf '%s\n' "$ALLOWED_PACK_IDS" | grep -qx "$id"; then
+      echo "  unexpected pack id under $root: $id" >&2
+      pack_allow_fail=1
+    fi
+  done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+done
+# Embed twin must list the same three pack.json files.
+embed_count="$(find internal/packs/data -mindepth 2 -maxdepth 2 -name pack.json | wc -l | tr -d ' ')"
+tree_count="$(find packs -mindepth 2 -maxdepth 2 -name pack.json | wc -l | tr -d ' ')"
+if [[ "$embed_count" != "3" || "$tree_count" != "3" ]]; then
+  echo "  pack.json count mismatch: packs=$tree_count embed=$embed_count (want 3)" >&2
+  pack_allow_fail=1
+fi
+if [[ "$pack_allow_fail" -eq 0 ]]; then
+  ok "10 pack catalog allowlist (house-policy, cra-baseline, medtech-iec62304)"
+else
+  bad "10 pack catalog allowlist — new pack ids require freeze review + explicit PR"
+fi
+
 echo ""
 echo "redteam-pilot: $PASS passed, $FAIL failed"
 if [[ "$FAIL" -gt 0 ]]; then
