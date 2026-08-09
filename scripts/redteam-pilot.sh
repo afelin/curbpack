@@ -147,6 +147,42 @@ else
   bad "10 pack catalog allowlist — new pack ids require freeze review + explicit PR"
 fi
 
+# --- 11) Import refuses theater pack without assurance_class ---
+THEATER="$(mktemp -d)"
+mkdir -p "$THEATER/theater-pack"
+cat >"$THEATER/theater-pack/pack.json" <<'EOF'
+{
+  "id": "theater-pack",
+  "name": "Theater pack",
+  "version": "0.0.1",
+  "description": "Structural draft without assurance_class for import honesty.",
+  "rules": [
+    {
+      "id": "T-1",
+      "severity": "low",
+      "type": "POLICY_VIOLATION",
+      "check": "file_present",
+      "path": "README.md",
+      "description": "README present",
+      "remediation": "Add README.md",
+      "expected": "README.md exists"
+    }
+  ]
+}
+EOF
+IMPORT_DEST="$(mktemp -d)"
+set +e
+IMPORT_OUT="$(CYBERREADY_PACKS_DIR="$IMPORT_DEST" "$BIN" packs import "$THEATER" 2>&1)"
+IMPORT_RC=$?
+set -e
+if [[ "$IMPORT_RC" -ne 0 ]] && echo "$IMPORT_OUT" | grep -qi 'assurance_class'; then
+  ok "11 import refuses pack without assurance_class"
+else
+  bad "11 import must fail closed without assurance_class (rc=$IMPORT_RC)"
+  echo "$IMPORT_OUT" >&2
+fi
+rm -rf "$THEATER" "$IMPORT_DEST"
+
 echo ""
 echo "redteam-pilot: $PASS passed, $FAIL failed"
 if [[ "$FAIL" -gt 0 ]]; then

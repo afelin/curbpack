@@ -107,6 +107,7 @@ Watchlist refreshes are informational only and never fail validate.`)
 }
 
 // ImportAirGap copies pack.json files from a local directory into CYBERREADY_PACKS_DIR / dest.
+// Import-only honesty: ValidatePack, require assurance_class, refuse claim-adjacent theater copy.
 func ImportAirGap(src string) error {
 	if src == "" {
 		return fmt.Errorf("usage: cyberready packs import <directory>")
@@ -144,9 +145,18 @@ func ImportAirGap(src string) error {
 		if err != nil {
 			continue
 		}
-		var probe map[string]any
-		if json.Unmarshal(data, &probe) != nil {
-			continue
+		var p packs.Pack
+		if err := json.Unmarshal(data, &p); err != nil {
+			return fmt.Errorf("packs import %s: invalid pack.json: %w", name, err)
+		}
+		if err := packs.ValidatePack(p); err != nil {
+			return fmt.Errorf("packs import %s: %w", name, err)
+		}
+		if strings.TrimSpace(p.AssuranceClass) == "" {
+			return fmt.Errorf("packs import %s: assurance_class required (import honesty)", name)
+		}
+		if hit := claimAdjacentHit(p.Name, p.Description); hit != "" {
+			return fmt.Errorf("packs import %s: claim-adjacent %s refused", name, hit)
 		}
 		outDir := filepath.Join(dest, name)
 		if err := os.MkdirAll(outDir, 0o755); err != nil {
@@ -155,11 +165,44 @@ func ImportAirGap(src string) error {
 		if err := os.WriteFile(filepath.Join(outDir, "pack.json"), data, 0o644); err != nil {
 			return err
 		}
+		sum := sha256.Sum256(data)
+		digest := hex.EncodeToString(sum[:])
+		if err := os.WriteFile(filepath.Join(outDir, ".cyberready-pack.sha256"), []byte(digest+"\n"), 0o644); err != nil {
+			return err
+		}
 		copied++
 	}
 	tty.PrintStatus("Air-gap import", true, fmt.Sprintf("%d items → %s", copied, dest))
 	fmt.Println("Set CYBERREADY_PACKS_DIR=" + dest + " to use imported packs.")
 	return nil
+}
+
+// claimAdjacentHit returns a short label when name/description looks like certification theater.
+// Aligned with claim-safety DENY spirit; import-only fail-closed.
+func claimAdjacentHit(name, description string) string {
+	blob := strings.ToLower(strings.TrimSpace(name) + " " + strings.TrimSpace(description))
+	needles := []string{
+		"we are certified",
+		"product is certified",
+		"officially certified",
+		"cyberready certifies",
+		"notified-body approved",
+		"notified body approved",
+		"conformity assessment complete",
+		"conformity assessment passed",
+		"ce marking issued",
+		"is ce-marked",
+		"has been ce-marked",
+		"we are cra compliant",
+		"cra compliant",
+		"certified conformity",
+	}
+	for _, n := range needles {
+		if strings.Contains(blob, n) {
+			return "copy (" + n + ")"
+		}
+	}
+	return ""
 }
 
 // ExportGraph writes .github/cyberready/graph/policy-graph.json for active packs.
