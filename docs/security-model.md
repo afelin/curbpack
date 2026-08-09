@@ -75,4 +75,4 @@ Prefer **annotations and SARIF** for full gate detail. Sticky PR comments are tr
 - That gate pass equals legal conformity
 - That unsigned attest is "verified install" or "signed proof"
 
-See also: [SECURITY.md](../SECURITY.md) for vulnerability reporting.
+See also: [Promotion firewall](promotion-firewall.md) · [SECURITY.md](../SECURITY.md) for vulnerability reporting.

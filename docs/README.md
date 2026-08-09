@@ -6,6 +6,7 @@
 |-----|---------|
 | [Intent vs Scope](intent-vs-scope.md) | What CyberReady is / is not |
 | [Security model](security-model.md) | Trust boundaries, required CI, freeze |
+| [Promotion firewall](promotion-firewall.md) | RISE-neutral publish language + MoU checklist |
 | [Write your own pack](write-your-own-pack.md) | Pack authoring |
 | [Coreward bridge](coreward-bridge.md) | Optional tutor IPC + dogfood checklist |
 | [Packs update](packs-update.md) | Pack refresh / air-gap |

@@ -30,4 +30,4 @@ CyberReady decides pass/fail. Chat may draft prose or remediation suggestions. C
 
 **Activate in 60s:** [getting-started / 60-second paths](getting-started/60-second-paths.md).
 
-See also: [Coreward bridge](coreward-bridge.md) · [Write your own pack](write-your-own-pack.md) · [Security model](security-model.md)
+See also: [Promotion firewall](promotion-firewall.md) · [Coreward bridge](coreward-bridge.md) · [Write your own pack](write-your-own-pack.md) · [Security model](security-model.md)

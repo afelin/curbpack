@@ -23,7 +23,7 @@ Prefer the **First move stuck** issue template: path A/B/C + the step that faile
 
 ## Claim safety
 
-Do not introduce certification / CE / notified-body language. Run `scripts/claim-safety.sh` before opening a PR that touches docs or CLI strings.
+Do not introduce certification / CE / notified-body language. Run `scripts/claim-safety.sh` before opening a PR that touches docs or CLI strings. Public co-promotion rules: [`docs/promotion-firewall.md`](docs/promotion-firewall.md) (RISE = funder, not certifier).
 
 ## Trust surface
 
