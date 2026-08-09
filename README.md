@@ -32,14 +32,14 @@ Runs deposit cache + review-pack; attest when human-ready.
 ## GitHub Action
 
 ```yaml
-- uses: afelin/cyberready@v0.4.1
+- uses: afelin/cyberready@v0.4.2
   with:
     heal: "true"
     comment_on: red
     upload_sarif: "true"
 ```
 
-Pin **`@v0.4.1`** (tag + release checksums). Empty `version` builds from this module when `go` is present, otherwise downloads **v0.4.1** (never floating `latest`). Prefer SARIF/annotations over long PR comments. Drop-in example: [`examples/workflows/cyberready-check.yml`](examples/workflows/cyberready-check.yml).
+Pin **`@v0.4.2`** (tag + release checksums). Empty `version` builds from this module when `go` is present, otherwise downloads **v0.4.2** (never floating `latest`). Prefer SARIF/annotations over long PR comments. Drop-in example: [`examples/workflows/cyberready-check.yml`](examples/workflows/cyberready-check.yml).
 
 **Pilot deploy:** run `./scripts/redteam-pilot.sh` before promoting a pin.
 

@@ -23,7 +23,7 @@ Optional (not merge-blocking): `gauntlet-nightly` in `.github/workflows/gauntlet
 - README license badge → Apache-2.0
 
 After merge, confirm: `gh api repos/afelin/cyberready --jq .license.spdx_id` → `Apache-2.0`.
-If still `NOASSERTION`, wait for GitHub re-detect or tag `v0.4.1` with the hygiene commit.
+If still `NOASSERTION`, wait for GitHub re-detect or tag `v0.4.2` with the hygiene commit.
 
 ## Heal (deterministic — not ML)
 
@@ -43,7 +43,7 @@ Deny-list blocks certification theater; negation / claim-safe framing is allowed
 
 ## How we know activation works
 
-- Market promise: a stranger’s **first green &lt;10 minutes** on pin `@v0.4.1` (safe try / product repo / CI).
+- Market promise: a stranger’s **first green &lt;10 minutes** on pin `@v0.4.2` (safe try / product repo / CI).
 - Maintainer harness: [`scripts/time-to-green.sh`](../scripts/time-to-green.sh) defaults to a **600s** wall-clock bar; use `TTG_MAX_SECONDS=60` for a tight CI smoke.
 - Merge gate: required check **`redteam-pilot`** (`./scripts/redteam-pilot.sh` 9/9). No public vanity counter.
 

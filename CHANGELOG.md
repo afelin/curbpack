@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.2
+
+Honesty + SME utility (trust-surface freeze **continues** from v0.4.0 — no Action resolve / SafeJoin / attest OCC rewrite).
+
+- **Version integrity** — single `internal/buildinfo.Version`; SBOM tool component matches pin
+- **Pack display honesty** — CRA/medtech informational names + `assurance_class: structural_draft` (ids unchanged)
+- **Buyer questions** — `export --buyer-questions` Markdown/JSON checklist for human review
+- **RISE-neutral publish** — NOTICE funder/non-certify line + `docs/promotion-firewall.md`
+- **Pack catalog freeze** — redteam allowlist (three pack ids only)
+
 ## v0.4.1
 
 Activation polish + one pin truth (trust-surface freeze continues from v0.4.0).

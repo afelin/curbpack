@@ -4,7 +4,7 @@ Static explainer for https://afelin.github.io/cyberready/
 
 Deploy via `.github/workflows/pages.yml` (Actions → Pages). Enable **GitHub Pages → Source: GitHub Actions** in repo settings if the site 404s.
 
-Pilot pin: `@v0.4.1`. Adversarial grade: `scripts/redteam-pilot.sh`. Trust-surface freeze: see `docs/security-model.md`.
+Pilot pin: `@v0.4.2`. Adversarial grade: `scripts/redteam-pilot.sh`. Trust-surface freeze: see `docs/security-model.md`.
 
 ## Contents
 

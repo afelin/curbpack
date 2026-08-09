@@ -39,7 +39,7 @@ Agent rule: after doc/dep edits, re-run `check`. Never claim certification.
 **Action-only path** (no local install required):
 
 1. Copy [`examples/workflows/cyberready-check.yml`](../../examples/workflows/cyberready-check.yml) → `.github/workflows/cyberready.yml`.
-2. Push / open a PR. Pin stays **`@v0.4.1`**. Minimal permissions: `contents: read`, `pull-requests: write`, `security-events: write`.
+2. Push / open a PR. Pin stays **`@v0.4.2`**. Minimal permissions: `contents: read`, `pull-requests: write`, `security-events: write`.
 3. Expect: uninitialized repos resolve **`house-policy`**; with `heal: true`, missing stubs are written; green sticky once, or red with heal stubs + top-3 ask pointer — still felt value. Claim-safe: gate pass ≠ certification.
 
 Optional local equivalent: `cyberready init --workflow` writes the same drop-in workflow **only if missing** (never overwrites; not enabled by default `init`).
@@ -64,7 +64,7 @@ Habit after first green: [daily loop](daily-loop.md) (Action every PR · local `
 |-------------|------|
 | `cyberready init --bare` | Minimal scaffold (no hooks/skill/ide) |
 | `cyberready init --packs a,b` | Override default house-policy |
-| `cyberready init --workflow` | Opt-in drop-in Action `@v0.4.1` workflow if missing |
+| `cyberready init --workflow` | Opt-in drop-in Action `@v0.4.2` workflow if missing |
 | `cyberready demo --open` | Opt-in browser for the sandbox one-pager |
 
 > Prepares evidence for human review — not a conformity assessment.

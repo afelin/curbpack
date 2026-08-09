@@ -1,5 +1,5 @@
 # Drop-in GitHub Action workflow for CyberReady.
-# Copy to .github/workflows/cyberready.yml — pin stays @v0.4.1.
+# Copy to .github/workflows/cyberready.yml — pin stays @v0.4.2.
 name: cyberready-check
 
 on:
@@ -18,9 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: CyberReady check
-        uses: afelin/cyberready@v0.4.1
+        uses: afelin/cyberready@v0.4.2
         with:
-          version: v0.4.1
+          version: v0.4.2
           heal: "true"
           prepare_release: "true"
           comment_on: red

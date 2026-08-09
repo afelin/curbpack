@@ -1,6 +1,6 @@
 # Adopters
 
-Opt-in list. Add your org or project if you run CyberReady+ Action `@v0.4.1` or `cyberready init` + hooks and want a public nod.
+Opt-in list. Add your org or project if you run CyberReady+ Action `@v0.4.2` or `cyberready init` + hooks and want a public nod.
 
 Gate green means **ready for human review** — not certification.
 

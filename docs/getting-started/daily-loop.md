@@ -1,9 +1,9 @@
 # Daily loop (habit)
 
-Value recurs without babysitting. Pin stays **`@v0.4.1`**. Gate green is evidence for human review — not certification.
+Value recurs without babysitting. Pin stays **`@v0.4.2`**. Gate green is evidence for human review — not certification.
 
 ```text
-every PR  → Action @v0.4.1 (comment_on: red, upload_sarif)
+every PR  → Action @v0.4.2 (comment_on: red, upload_sarif)
 local day → cyberready check   # Δ whisper when prior cache
 release   → prepare-release → attest
 ```
