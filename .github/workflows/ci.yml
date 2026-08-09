@@ -53,13 +53,15 @@ jobs:
           git config user.name "CI"
           git commit --allow-empty -m init -q
           "$GITHUB_WORKSPACE/bin/cyberready" init --packs cra-baseline
+          # Bind annex drafts to a resolvable product token (package.json name).
+          printf '%s\n' '{"name":"contoso-gateway","version":"1.0.0","dependencies":{}}' > package.json
           # Fill annex stubs past placeholders / min sizes
           cat > docs/annex-vii/risk_assessment.md <<'EOF'
           # Risk Assessment
 
           ## Product Overview
 
-          The Contoso Sensor Gateway forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
+          The contoso-gateway product forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
 
           ## Identified Risks
 
@@ -76,7 +78,7 @@ jobs:
 
           ## End of Support
 
-          Security updates are provided for five years from the general availability date of each major release.
+          Security updates for contoso-gateway are provided for five years from the general availability date of each major release.
 
           ## Rationale
 
@@ -87,7 +89,7 @@ jobs:
 
           ## Secure Configuration
 
-          Disable default accounts, enforce MFA, and restrict management interfaces to the hospital VLAN.
+          Disable default accounts on contoso-gateway, enforce MFA, and restrict management interfaces to the hospital VLAN.
 
           ## Product Disposal
 
