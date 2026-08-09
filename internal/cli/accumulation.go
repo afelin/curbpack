@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/afelin/cyberready/internal/instrument"
 )
 
 // priorCacheSnapshot is the quiet accumulation whisper source (pre-overwrite).
@@ -26,7 +28,7 @@ func loadPriorCache(root string) priorCacheSnapshot {
 		}
 	}
 	var raw struct {
-		ReadinessScore int `json:"readiness_score"`
+		ReadinessScore int               `json:"readiness_score"`
 		Failures       []json.RawMessage `json:"failures"`
 	}
 	if err := json.Unmarshal(b, &raw); err != nil {
@@ -53,4 +55,27 @@ func accumulationDeltaLine(prior priorCacheSnapshot, nowScore int) string {
 		return fmt.Sprintf("Δ readiness %d→%d · evidence cache updated", prior.ReadinessScore, nowScore)
 	}
 	return "gates green · evidence cache updated"
+}
+
+// instrumentWhisperLines returns at most 3 dim instrument lines (readiness / deps / secrets).
+// First run (no prior instrument): readiness line only when prior IR cache exists; deps/secrets quiet.
+func instrumentWhisperLines(priorCache priorCacheSnapshot, priorInst instrument.Snapshot, priorOK bool, nowScore int, nowInst instrument.Snapshot) []string {
+	var lines []string
+	if line := accumulationDeltaLine(priorCache, nowScore); line != "" {
+		lines = append(lines, line)
+	}
+	if !priorOK {
+		return lines
+	}
+	if priorInst.DepsFP != nowInst.DepsFP {
+		add, rem := instrument.DepDelta(priorInst, nowInst)
+		lines = append(lines, fmt.Sprintf("Δ deps +%d/−%d", add, rem))
+	}
+	if priorInst.SecretHits != nowInst.SecretHits {
+		lines = append(lines, fmt.Sprintf("Δ secret-hits %d→%d", priorInst.SecretHits, nowInst.SecretHits))
+	}
+	if len(lines) > 3 {
+		lines = lines[:3]
+	}
+	return lines
 }

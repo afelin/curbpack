@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/afelin/cyberready/internal/instrument"
 )
 
 func TestAccumulationDeltaLineNoPrior(t *testing.T) {
@@ -23,6 +25,25 @@ func TestAccumulationDeltaLineScoreChange(t *testing.T) {
 	}
 	if strings.Count(got, "\n") != 0 {
 		t.Fatalf("must be exactly one line, got %q", got)
+	}
+}
+
+func TestInstrumentWhisperLinesCapsAndFirstRunQuiet(t *testing.T) {
+	priorCache := priorCacheSnapshot{OK: true, ReadinessScore: 80, FailureCount: 1}
+	now := instrument.Snapshot{DepsFP: "bbb", SecretHits: 2, Deps: []instrument.Dep{{Name: "a", Eco: "npm"}}}
+	// First run: no prior instrument → readiness only.
+	lines := instrumentWhisperLines(priorCache, instrument.Snapshot{}, false, 100, now)
+	if len(lines) != 1 || !strings.Contains(lines[0], "Δ readiness") {
+		t.Fatalf("first run want readiness only, got %#v", lines)
+	}
+	prior := instrument.Snapshot{DepsFP: "aaa", SecretHits: 0, Deps: nil}
+	lines = instrumentWhisperLines(priorCache, prior, true, 100, now)
+	if len(lines) < 2 || len(lines) > 3 {
+		t.Fatalf("want 2–3 lines, got %#v", lines)
+	}
+	joined := strings.Join(lines, "\n")
+	if !strings.Contains(joined, "Δ deps") || !strings.Contains(joined, "Δ secret-hits") {
+		t.Fatalf("missing deps/secret whispers:\n%s", joined)
 	}
 }
 

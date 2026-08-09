@@ -17,6 +17,7 @@ import (
 	"github.com/afelin/cyberready/internal/exportx"
 	"github.com/afelin/cyberready/internal/formhints"
 	"github.com/afelin/cyberready/internal/gitutil"
+	"github.com/afelin/cyberready/internal/instrument"
 	"github.com/afelin/cyberready/internal/packs"
 	"github.com/afelin/cyberready/internal/packscmd"
 	"github.com/afelin/cyberready/internal/release"
@@ -147,7 +148,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  check --diff                  Delta mode — not release-gate safe\n")
 	fmt.Fprintf(os.Stderr, "  ask [file] [--propose]        Explain GateFailure JSON\n")
 	fmt.Fprintf(os.Stderr, "  packs list|update|import|export-graph|doctor\n")
-	fmt.Fprintf(os.Stderr, "  export --sarif|--explain-packet|--watchlist-join|--buyer-questions [--spdx] [--slsa]\n")
+	fmt.Fprintf(os.Stderr, "  export --sarif|--explain-packet|--watchlist-join|--buyer-questions|--lay-of-land [--spdx] [--slsa]\n")
 	fmt.Fprintf(os.Stderr, "  sock                          Optional Coreward Unix IPC\n")
 	fmt.Fprintf(os.Stderr, "  view                          Show attest capsule for HEAD\n\n")
 	fmt.Fprintf(os.Stderr, "Exit codes: 0=pass  1=gates/error  2=usage/env\n")
@@ -407,6 +408,7 @@ func cmdCheck(args []string) error {
 
 	// Snapshot prior evidence deposit before validate overwrites cache.
 	prior := loadPriorCache(root)
+	priorInst, priorInstOK := instrument.Load(root)
 
 	if !jsonOut {
 		tty.PrintHeader("CYBERREADY CHECK")
@@ -449,19 +451,23 @@ func cmdCheck(args []string) error {
 		checkDiff = false
 	}
 
+	// Instrument map: always refresh after a successful validate write path.
+	nowInst := instrument.Compute(root)
+	_ = instrument.Write(root, nowInst)
+
 	if jsonOut {
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", "  ")
 		_ = enc.Encode(res.Payload)
 	} else if res.Passed {
-		// Green: thermometer + claim + optional one-line accumulation whisper.
+		// Green: thermometer + claim + optional accumulation / instrument whispers.
 		if tty.IsTerminal {
 			tty.RenderThermometer(res.Score)
 		} else {
 			fmt.Printf("readiness=%d%% gates=green\n", res.Score)
 		}
 		fmt.Printf("%s\n", tty.C(tty.Dim, "Prepares evidence for human review — not a conformity assessment."))
-		if line := accumulationDeltaLine(prior, res.Score); line != "" {
+		for _, line := range instrumentWhisperLines(prior, priorInst, priorInstOK, res.Score, nowInst) {
 			fmt.Printf("%s\n", tty.C(tty.Dim, line))
 		}
 	} else {
@@ -622,6 +628,7 @@ func cmdExport(args []string) error {
 	wantExplain := false
 	wantJoin := false
 	wantBuyerQ := false
+	wantLayOfLand := false
 	wantSPDX := false
 	wantSLSA := false
 	for i := 0; i < len(args); i++ {
@@ -634,6 +641,8 @@ func cmdExport(args []string) error {
 			wantJoin = true
 		case "--buyer-questions":
 			wantBuyerQ = true
+		case "--lay-of-land":
+			wantLayOfLand = true
 		case "--spdx":
 			wantSPDX = true
 		case "--slsa":
@@ -650,8 +659,8 @@ func cmdExport(args []string) error {
 			}
 		}
 	}
-	if !wantSARIF && !wantExplain && !wantJoin && !wantBuyerQ && !wantSPDX && !wantSLSA {
-		return usageErr("export requires --sarif, --explain-packet, --watchlist-join, --buyer-questions, and/or --spdx/--slsa")
+	if !wantSARIF && !wantExplain && !wantJoin && !wantBuyerQ && !wantLayOfLand && !wantSPDX && !wantSLSA {
+		return usageErr("export requires --sarif, --explain-packet, --watchlist-join, --buyer-questions, --lay-of-land, and/or --spdx/--slsa")
 	}
 	usedOut := false
 	takeOut := func() string {
@@ -693,6 +702,13 @@ func cmdExport(args []string) error {
 			return err
 		}
 		tty.PrintStatus("buyer-questions", true, fmt.Sprintf("%s questions=%d", path, n))
+	}
+	if wantLayOfLand {
+		path, err := exportx.WriteLayOfLand(root, takeOut())
+		if err != nil {
+			return err
+		}
+		tty.PrintStatus("lay-of-land", true, path)
 	}
 	if wantSPDX {
 		path, err := exportx.WriteSPDXOptional(root, "")
