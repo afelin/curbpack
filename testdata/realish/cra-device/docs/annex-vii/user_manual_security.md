@@ -2,7 +2,7 @@
 
 ## Secure Configuration
 
-Disable default accounts, enforce MFA, and restrict management interfaces to the hospital VLAN.
+Disable default accounts on contoso-gateway, enforce MFA, and restrict management interfaces to the hospital VLAN.
 
 ## Product Disposal
 

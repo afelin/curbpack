@@ -2,7 +2,7 @@
 
 ## Product Overview
 
-The Contoso Sensor Gateway forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
+The contoso-gateway product forwards telemetry from clinical devices to a hospital EHR over mutually authenticated TLS.
 
 ## Identified Risks
 

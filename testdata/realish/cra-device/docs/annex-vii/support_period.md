@@ -2,7 +2,7 @@
 
 ## End of Support
 
-Security updates are provided for five years from the general availability date of each major release.
+Security updates for contoso-gateway are provided for five years from the general availability date of each major release.
 
 ## Rationale
 
