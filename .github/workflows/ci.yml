@@ -54,6 +54,8 @@ jobs:
           git commit --allow-empty -m init -q
           "$GITHUB_WORKSPACE/bin/cyberready" init --packs cra-baseline
           # Bind annex drafts to a resolvable product token (package.json name).
+          # CRA-ANNEX-VII-RISK also require_tree_paths README.md (always present post-init/heal in product repos).
+          printf '%s\n' '# contoso-gateway' > README.md
           printf '%s\n' '{"name":"contoso-gateway","version":"1.0.0","dependencies":{}}' > package.json
           # Fill annex stubs past placeholders / min sizes
           cat > docs/annex-vii/risk_assessment.md <<'EOF'
