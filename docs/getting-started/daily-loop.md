@@ -1,11 +1,11 @@
 # Daily loop (habit)
 
-Value recurs without babysitting. Pin stays **`@v0.4.2`** until the next honesty cut. Gate green is evidence for human review — not certification.
+Value recurs without babysitting. Pin stays **`@v0.4.3`** until the next honesty cut. Gate green is evidence for human review — not certification.
 
 **Instrument panel pitch:** after every change (human or agent), one `cyberready check` yields an honest map for *this* repo — structural evidence, not a certificate. Keep hooks: they are the agent force-multiplier.
 
 ```text
-every PR  → Action @v0.4.2 (comment_on: red, upload_sarif) + hooks
+every PR  → Action @v0.4.3 (comment_on: red, upload_sarif) + hooks
 local day → cyberready check   # Δ readiness / deps / secret-hits + covenant
 release   → prepare-release → attest
 optional  → export --lay-of-land · export --buyer-questions

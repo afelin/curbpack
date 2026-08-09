@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.3
+
+Instrument-panel honesty (trust-surface freeze **continues** from v0.4.0 — no Action resolve / SafeJoin / attest OCC rewrite). Pack ids unchanged.
+
+- **Binding gates** — `bind_repo_token` / `require_tree_paths` on CRA annex drafts; hollow LLM green fails
+- **Δ map** — `instrument.json` + capped readiness/deps/secret-hits whispers; `export --lay-of-land`
+- **Always-on covenant** — check/doctor epilogue + SARIF `certification_claimed: false` / `instrument_panel: true`
+- **Import honesty** — `packs import` requires `assurance_class`; redteam case 11
+- **UNSIGNED buyers** — house-policy agent secret paths; loud UNSIGNED one-pager / attestation status
+
 ## v0.4.2
 
 Honesty + SME utility (trust-surface freeze **continues** from v0.4.0 — no Action resolve / SafeJoin / attest OCC rewrite).

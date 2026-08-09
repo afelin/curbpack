@@ -18,8 +18,8 @@ Pilot-prod (CLI + Action on other git repos) means exactly these three invariant
 
 - Grade: `./scripts/redteam-pilot.sh` must be green.
 - **CI required check:** merges to `main` require the GitHub Actions job named **`redteam-pilot`** green (enable it under branch protection if not already). Feature count cannot replace this scoreboard.
-- Pin: Action/consumers use `@v0.4.2` (prefer tag + commit SHA).
-- **30-day trust-surface freeze continues from `v0.4.0` through `v0.4.2`** (`v0.4.2` = honesty + SME buyer-questions only; no trust-surface rewrite): Action binary resolve, `SafeJoin` / pack path jail, attest OCC / `--allow-dirty` honesty, claim-safety, and explain-packet airlock — bugfixes only; no new trust-surface features.
+- Pin: Action/consumers use `@v0.4.3` (prefer tag + commit SHA).
+- **30-day trust-surface freeze continues from `v0.4.0` through `v0.4.3`** (`v0.4.3` = instrument-panel honesty only; no trust-surface rewrite): Action binary resolve, `SafeJoin` / pack path jail, attest OCC / `--allow-dirty` honesty, claim-safety, and explain-packet airlock — bugfixes only; no new trust-surface features.
 
 ## Trust boundaries
 

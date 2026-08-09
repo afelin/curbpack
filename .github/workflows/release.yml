@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to build (e.g. v0.4.2); leave empty to use github.ref_name"
+        description: "Tag to build (e.g. v0.4.3); leave empty to use github.ref_name"
         required: false
         default: ""
 

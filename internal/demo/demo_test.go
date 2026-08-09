@@ -44,7 +44,7 @@ func TestRunPrintsProductNextLine(t *testing.T) {
 	if !strings.Contains(out, "next on your repo: cyberready init && cyberready check") {
 		t.Fatalf("missing product next-line in output:\n%s", out)
 	}
-	if !strings.Contains(out, "afelin/cyberready@v0.4.2") {
+	if !strings.Contains(out, "afelin/cyberready@v0.4.3") {
 		t.Fatalf("missing Action pin pointer in output:\n%s", out)
 	}
 	if strings.Contains(out, "init --packs house-policy --hooks") {

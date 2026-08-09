@@ -1,12 +1,12 @@
 #!/bin/sh
 # CyberReady+ one-click install — downloads a GitHub Release binary (no Go required).
 # Usage: curl -fsSL https://raw.githubusercontent.com/afelin/cyberready/main/scripts/install.sh | sh
-# Env: CYBERREADY_VERSION (default: v0.4.2), CYBERREADY_INSTALL_DIR (default: ~/.local/bin), GITHUB_TOKEN (optional)
+# Env: CYBERREADY_VERSION (default: v0.4.3), CYBERREADY_INSTALL_DIR (default: ~/.local/bin), GITHUB_TOKEN (optional)
 # Fail-closed: verifies asset against release checksums.txt (sha256).
 set -eu
 
 REPO="${CYBERREADY_REPO:-afelin/cyberready}"
-VERSION="${CYBERREADY_VERSION:-v0.4.2}"
+VERSION="${CYBERREADY_VERSION:-v0.4.3}"
 INSTALL_DIR="${CYBERREADY_INSTALL_DIR:-${HOME}/.local/bin}"
 
 claim='Prepares evidence for human review — not a conformity assessment.'

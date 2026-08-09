@@ -1,12 +1,12 @@
 # Design partners
 
-Product brief for five external repos that keep Action `@v0.4.2` or `init`+hooks green. Outreach is human-operated; this file is the ask + scoreboard.
+Product brief for five external repos that keep Action `@v0.4.3` or `init`+hooks green. Outreach is human-operated; this file is the ask + scoreboard.
 
 **Local pack gates. Humans review. Not conformity assessment.**
 
 | Field | Content |
 |-------|---------|
-| Ask | Add Action `@v0.4.2` **or** `cyberready init` + hooks; keep for 14 days |
+| Ask | Add Action `@v0.4.3` **or** `cyberready init` + hooks; keep for 14 days |
 | Success | First green &lt;10 min; second green ≤7 days; “judge clicked without pitch?” Y/N |
 | Forbidden asks | Certification claims; uploading IP to a cloud policy brain |
 | Weekly ritual | 15-min note: path taken (A/B/C), stall step, keep/kill |
@@ -44,7 +44,7 @@ Ship the rhythm in-repo; the calendar is human-operated.
 | Every merge | `redteam-pilot` required green |
 | Weekly | Run `./scripts/time-to-green.sh`; skim partner notes; **zero** new trust-surface features |
 | Biweekly | Kill/keep on friction from first-move issues |
-| Day 30 of freeze | Explicit freeze review: renew, narrow, or cut next bugfix-only tag (`v0.4.2` already shipped honesty/SME utility) |
+| Day 30 of freeze | Explicit freeze review: renew, narrow, or cut next bugfix-only tag (`v0.4.3` already shipped honesty/SME utility) |
 
 ### Explicit nos
 

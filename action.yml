@@ -7,7 +7,7 @@ branding:
 
 inputs:
   version:
-    description: 'Release tag to download (e.g. v0.4.2). Empty = build from this checkout if go.mod is cyberready, else download v0.4.2 (never floating latest).'
+    description: 'Release tag to download (e.g. v0.4.3). Empty = build from this checkout if go.mod is cyberready, else download v0.4.3 (never floating latest).'
     required: false
     default: ''
   packs:
@@ -75,12 +75,12 @@ runs:
           go build -o "$DEST" ./cmd/cyberready
           echo "source=built" >> "$GITHUB_OUTPUT"
         else
-          # Empty version → pin v0.4.2 (never silent floating latest).
+          # Empty version → pin v0.4.3 (never silent floating latest).
           if [ -z "$VER" ] || [ "$VER" = "latest" ]; then
             if [ "$VER" = "latest" ]; then
-              echo "inputs.version=latest is deprecated; downloading v0.4.2 instead" >&2
+              echo "inputs.version=latest is deprecated; downloading v0.4.3 instead" >&2
             fi
-            VER="v0.4.2"
+            VER="v0.4.3"
           fi
           URL="https://github.com/afelin/cyberready/releases/download/${VER}/${ASSET}"
           CHECKSUMS_URL="https://github.com/afelin/cyberready/releases/download/${VER}/checksums.txt"
