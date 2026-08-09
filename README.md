@@ -59,7 +59,7 @@ Gate pass is **not** certification, CE marking, or notified-body approval. CI en
 | `check --diff` | Delta mode — **not** release-gate safe |
 | `ask [file] --propose` | Explain GateFailure JSON (propose-only) |
 | `packs list\|update\|import\|export-graph\|doctor` | Packs, RKG export, validity doctor |
-| `export --sarif\|--explain-packet\|--watchlist-join` | Standards / airlock exporters |
+| `export --sarif\|--explain-packet\|--watchlist-join\|--buyer-questions` | Standards / airlock / buyer checklist exporters |
 | `sock` | Optional private Unix IPC (Coreward) |
 | `init --bare` | Minimal scaffold (no hooks/skill/ide) |
 | `init --packs a,b` | Override default house-policy packs |

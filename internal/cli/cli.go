@@ -147,7 +147,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  check --diff                  Delta mode — not release-gate safe\n")
 	fmt.Fprintf(os.Stderr, "  ask [file] [--propose]        Explain GateFailure JSON\n")
 	fmt.Fprintf(os.Stderr, "  packs list|update|import|export-graph|doctor\n")
-	fmt.Fprintf(os.Stderr, "  export --sarif|--explain-packet|--watchlist-join [--spdx] [--slsa]\n")
+	fmt.Fprintf(os.Stderr, "  export --sarif|--explain-packet|--watchlist-join|--buyer-questions [--spdx] [--slsa]\n")
 	fmt.Fprintf(os.Stderr, "  sock                          Optional Coreward Unix IPC\n")
 	fmt.Fprintf(os.Stderr, "  view                          Show attest capsule for HEAD\n\n")
 	fmt.Fprintf(os.Stderr, "Exit codes: 0=pass  1=gates/error  2=usage/env\n")
@@ -621,6 +621,7 @@ func cmdExport(args []string) error {
 	wantSARIF := false
 	wantExplain := false
 	wantJoin := false
+	wantBuyerQ := false
 	wantSPDX := false
 	wantSLSA := false
 	for i := 0; i < len(args); i++ {
@@ -631,6 +632,8 @@ func cmdExport(args []string) error {
 			wantExplain = true
 		case "--watchlist-join":
 			wantJoin = true
+		case "--buyer-questions":
+			wantBuyerQ = true
 		case "--spdx":
 			wantSPDX = true
 		case "--slsa":
@@ -647,26 +650,33 @@ func cmdExport(args []string) error {
 			}
 		}
 	}
-	if !wantSARIF && !wantExplain && !wantJoin && !wantSPDX && !wantSLSA {
-		return usageErr("export requires --sarif, --explain-packet, --watchlist-join, and/or --spdx/--slsa")
+	if !wantSARIF && !wantExplain && !wantJoin && !wantBuyerQ && !wantSPDX && !wantSLSA {
+		return usageErr("export requires --sarif, --explain-packet, --watchlist-join, --buyer-questions, and/or --spdx/--slsa")
+	}
+	usedOut := false
+	takeOut := func() string {
+		if usedOut || out == "" {
+			return ""
+		}
+		usedOut = true
+		return out
 	}
 	if wantSARIF {
-		path, n, err := exportx.WriteSARIF(root, packIDs, out)
+		path, n, err := exportx.WriteSARIF(root, packIDs, takeOut())
 		if err != nil {
 			return err
 		}
 		tty.PrintStatus("SARIF", true, fmt.Sprintf("%s results=%d", path, n))
-		out = "" // don't reuse path for subsequent exporters
 	}
 	if wantJoin {
-		path, err := exportx.WriteWatchlistJoin(root, ternary(wantSARIF || wantExplain, "", out))
+		path, err := exportx.WriteWatchlistJoin(root, takeOut())
 		if err != nil {
 			return err
 		}
 		tty.PrintStatus("watchlist∩SBOM", true, path)
 	}
 	if wantExplain {
-		path, err := exportx.WriteExplainPacket(root, packIDs, ternary(wantSARIF || wantJoin, "", out))
+		path, err := exportx.WriteExplainPacket(root, packIDs, takeOut())
 		if err != nil {
 			return err
 		}
@@ -676,6 +686,13 @@ func cmdExport(args []string) error {
 		}
 		tty.PrintStatus("explain-packet", true, path)
 		fmt.Printf("%s\n", tty.C(tty.Dim, "CYBERREADY_EXPLAIN_ALLOW_CLOUD=0 by default — set =1 only for explicit cloud tutor export"))
+	}
+	if wantBuyerQ {
+		path, n, err := exportx.WriteBuyerQuestions(root, packIDs, takeOut())
+		if err != nil {
+			return err
+		}
+		tty.PrintStatus("buyer-questions", true, fmt.Sprintf("%s questions=%d", path, n))
 	}
 	if wantSPDX {
 		path, err := exportx.WriteSPDXOptional(root, "")
@@ -692,13 +709,6 @@ func cmdExport(args []string) error {
 		tty.PrintStatus("SLSA sidecar (optional)", true, path)
 	}
 	return nil
-}
-
-func ternary(cond bool, a, b string) string {
-	if cond {
-		return a
-	}
-	return b
 }
 
 func cmdAsk(args []string) error {

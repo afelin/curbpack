@@ -33,4 +33,14 @@ cyberready attest   # human only; never auto
 
 This repo runs [`.github/workflows/cyberready-dogfood.yml`](../../.github/workflows/cyberready-dogfood.yml) on every PR. Treat flakes as P0.
 
+## Buyer share (optional)
+
+After a green (or red) check, export a human checklist:
+
+```bash
+cyberready export --buyer-questions
+```
+
+Details: [Buyer evidence](buyer-evidence.md).
+
 See also: [60-second paths](60-second-paths.md) · [Design partners](../design-partners.md)
