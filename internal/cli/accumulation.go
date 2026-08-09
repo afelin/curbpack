@@ -9,6 +9,9 @@ import (
 	"github.com/afelin/cyberready/internal/instrument"
 )
 
+// instrumentPanelCovenant is always printed after the check thermometer (green and red).
+const instrumentPanelCovenant = "instrument panel · not a security program · not conformity assessment"
+
 // priorCacheSnapshot is the quiet accumulation whisper source (pre-overwrite).
 type priorCacheSnapshot struct {
 	OK             bool

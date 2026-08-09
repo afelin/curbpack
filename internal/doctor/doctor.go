@@ -16,6 +16,9 @@ import (
 
 const Claim = "Prepares evidence for human review — not a conformity assessment."
 
+// InstrumentPanelCovenant is the always-on honesty line for doctor / instrument surfaces.
+const InstrumentPanelCovenant = "instrument panel · not a security program · not conformity assessment"
+
 // Options controls doctor checks.
 type Options struct {
 	RepoRoot string // optional; empty = discover from cwd
@@ -25,7 +28,8 @@ type Options struct {
 // Run prints environment confidence checks. Always exits 0 from CLI unless fatal I/O.
 func Run(opts Options) error {
 	tty.PrintHeader("CYBERREADY DOCTOR")
-	fmt.Printf("%s\n\n", tty.C(tty.Dim, Claim))
+	fmt.Printf("%s\n", tty.C(tty.Dim, Claim))
+	fmt.Printf("%s\n\n", tty.C(tty.Dim, InstrumentPanelCovenant))
 
 	ok := true
 	printCheck := func(name string, passed bool, detail string) {

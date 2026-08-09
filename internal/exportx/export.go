@@ -118,8 +118,10 @@ func FromGateFailures(payload ir.GateFailurePayload) SARIFDocument {
 			Level:   level,
 			Message: SARIFMessage{Text: f.SanitizedDescription},
 			Properties: map[string]any{
-				"assurance_class": "structural_draft",
-				"note":            "Structural evidence for human review — not a conformity assessment.",
+				"assurance_class":       "structural_draft",
+				"certification_claimed": false,
+				"instrument_panel":      true,
+				"note":                  "Structural evidence for human review — not a conformity assessment.",
 			},
 		}
 		file := strings.TrimSpace(f.ASTCoordinates.TargetFile)
@@ -153,8 +155,10 @@ func FromGateFailures(payload ir.GateFailurePayload) SARIFDocument {
 			Invocations: []SARIFInvocation{{
 				ExecutionSuccessful: true,
 				Properties: map[string]any{
-					"assurance_class": "structural_draft",
-					"note":            "Structural evidence for human review — not a conformity assessment.",
+					"assurance_class":       "structural_draft",
+					"certification_claimed": false,
+					"instrument_panel":      true,
+					"note":                  "Structural evidence for human review — not a conformity assessment.",
 				},
 			}},
 		}},

@@ -467,6 +467,7 @@ func cmdCheck(args []string) error {
 			fmt.Printf("readiness=%d%% gates=green\n", res.Score)
 		}
 		fmt.Printf("%s\n", tty.C(tty.Dim, "Prepares evidence for human review — not a conformity assessment."))
+		fmt.Printf("%s\n", tty.C(tty.Dim, instrumentPanelCovenant))
 		for _, line := range instrumentWhisperLines(prior, priorInst, priorInstOK, res.Score, nowInst) {
 			fmt.Printf("%s\n", tty.C(tty.Dim, line))
 		}
@@ -479,6 +480,7 @@ func cmdCheck(args []string) error {
 		fmt.Printf("%s\n", tty.C(tty.Dim, "ask: cyberready ask .github/cyberready/cache/latest_failure.json --propose"))
 		fmt.Printf("%s\n", tty.C(tty.Dim, "cache: .github/cyberready/cache/latest_*.json"))
 		fmt.Printf("%s\n", tty.C(tty.Dim, "Prepares evidence for human review — not a conformity assessment."))
+		fmt.Printf("%s\n", tty.C(tty.Dim, instrumentPanelCovenant))
 	}
 
 	if wantHints && (len(res.Payload.Failures) > 0 || len(lastHints) > 0) {
