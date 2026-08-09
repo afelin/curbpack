@@ -49,12 +49,17 @@
       "paths": [
         "README.md",
         "SECURITY.md",
-        ".well-known/security.txt"
+        ".well-known/security.txt",
+        ".env",
+        ".env.local",
+        "credentials.json",
+        "service-account.json",
+        "id_rsa"
       ],
       "pattern": "(?i)(AKIA[0-9A-Z]{16}|-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----|api[_-]?key\\s*[:=]\\s*['\\\"]?[a-zA-Z0-9]{20,})",
-      "description": "Likely secrets or private key material found in tracked policy docs.",
-      "remediation": "Remove credentials from docs; rotate any exposed secrets; use a secret manager.",
-      "expected": "No secret-like patterns in house policy document paths."
+      "description": "Likely secrets or private key material found in tracked policy docs or common agent secret paths.",
+      "remediation": "Remove credentials from docs and agent-oops paths; rotate any exposed secrets; use a secret manager.",
+      "expected": "No secret-like patterns in house policy document paths or common agent secret files."
     },
     {
       "id": "HOUSE-ANTI-PLACEHOLDER",

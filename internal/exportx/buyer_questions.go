@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/afelin/cyberready/internal/attest"
+	"github.com/afelin/cyberready/internal/gitutil"
 	"github.com/afelin/cyberready/internal/packs"
 	"github.com/afelin/cyberready/internal/validate"
 )
@@ -25,11 +27,12 @@ type BuyerQuestion struct {
 
 // BuyerQuestionsReport is Markdown+JSON checklist export (claim-safe).
 type BuyerQuestionsReport struct {
-	SchemaVersion string          `json:"schema_version"`
-	Note          string          `json:"note"`
-	PackID        string          `json:"pack_id"`
-	AssuranceClass string         `json:"assurance_class"`
-	Questions     []BuyerQuestion `json:"questions"`
+	SchemaVersion    string          `json:"schema_version"`
+	Note             string          `json:"note"`
+	PackID           string          `json:"pack_id"`
+	AssuranceClass   string          `json:"assurance_class"`
+	AttestationStatus string         `json:"attestation_status"`
+	Questions        []BuyerQuestion `json:"questions"`
 }
 
 // WriteBuyerQuestions emits buyer-questions.md + .json under cache (or outPath stem).
@@ -81,11 +84,12 @@ func WriteBuyerQuestions(root string, packIDs []string, outPath string) (string,
 		})
 	}
 	report := BuyerQuestionsReport{
-		SchemaVersion:  "1",
-		Note:           "Local pack gates prepare evidence for human review. Not CE / not notified-body. Not a conformity assessment.",
-		PackID:         composed.ID,
-		AssuranceClass: assurance,
-		Questions:      questions,
+		SchemaVersion:     "1",
+		Note:              "Local pack gates prepare evidence for human review. Not CE / not notified-body. Not a conformity assessment.",
+		PackID:            composed.ID,
+		AssuranceClass:    assurance,
+		AttestationStatus: attestationStatus(root),
+		Questions:         questions,
 	}
 
 	mdPath, jsonPath := buyerQuestionsPaths(root, outPath)
@@ -143,7 +147,8 @@ func formatBuyerQuestionsMarkdown(report BuyerQuestionsReport) string {
 	b.WriteString("> Local pack gates. Humans review. Not conformity assessment.\n")
 	b.WriteString("> Not CE / not notified-body.\n\n")
 	fmt.Fprintf(&b, "- **Packs:** %s\n", report.PackID)
-	fmt.Fprintf(&b, "- **Assurance class:** `%s`\n\n", report.AssuranceClass)
+	fmt.Fprintf(&b, "- **Assurance class:** `%s`\n", report.AssuranceClass)
+	fmt.Fprintf(&b, "- **Attestation status:** `%s`\n\n", report.AttestationStatus)
 	b.WriteString("| gate_id | severity | human_question | artifact_path | assurance_class | remediation_hint |\n")
 	b.WriteString("|---|---|---|---|---|---|\n")
 	for _, q := range report.Questions {
@@ -164,4 +169,24 @@ func mdCell(s string) string {
 	s = strings.ReplaceAll(s, "|", "\\|")
 	s = strings.ReplaceAll(s, "\n", " ")
 	return s
+}
+
+// attestationStatus returns none | ssh-agent (best-effort notes read; default none).
+func attestationStatus(root string) string {
+	commit, err := gitutil.HeadSHA(root)
+	if err != nil || commit == "" || commit == "unknown" {
+		return "none"
+	}
+	body, err := gitutil.NotesShow(root, commit)
+	if err != nil || strings.TrimSpace(body) == "" {
+		return "none"
+	}
+	var cap attest.Capsule
+	if json.Unmarshal([]byte(body), &cap) != nil {
+		return "none"
+	}
+	if cap.UserTouch == "ssh-agent-signed" && cap.SSHSignature != "" && !strings.HasPrefix(cap.SSHSignature, "agent-bind:") {
+		return "ssh-agent"
+	}
+	return "none"
 }

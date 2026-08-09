@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/afelin/cyberready/internal/attest"
 	"github.com/afelin/cyberready/internal/config"
 	"github.com/afelin/cyberready/internal/exportx"
+	"github.com/afelin/cyberready/internal/gitutil"
 	"github.com/afelin/cyberready/internal/ir"
 	"github.com/afelin/cyberready/internal/packs"
 	"github.com/afelin/cyberready/internal/sbom"
@@ -271,9 +273,14 @@ func buyerOnePager(root string, res validate.Result) string {
 		status = "Gates passed — pending human review & attest"
 		statusClass = "ok"
 	}
+	attestLine, attestClass, unsignedLoud := attestationBanner(root)
+	if unsignedLoud {
+		status = "UNSIGNED — not cryptographically verified · " + status
+		statusClass = "unsigned"
+	}
 	var rows strings.Builder
 	var fpSeed strings.Builder
-	fmt.Fprintf(&fpSeed, "%d|%s|%s", res.Score, res.Payload.PackID, status)
+	fmt.Fprintf(&fpSeed, "%d|%s|%s|%s", res.Score, res.Payload.PackID, status, attestLine)
 	for _, f := range res.Payload.Failures {
 		fmt.Fprintf(&rows, "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n",
 			html.EscapeString(f.GateID), html.EscapeString(f.Severity), html.EscapeString(f.SanitizedDescription))
@@ -284,6 +291,14 @@ func buyerOnePager(root string, res validate.Result) string {
 	}
 	fpSum := sha256.Sum256([]byte(fpSeed.String()))
 	fp := fmt.Sprintf("%x", fpSum[:16])
+	lede := "Structural evidence for human review — not conformity assessment. Supplier readiness snapshot for procurement review. Evidence is prepared locally — this page is not a certificate of conformity."
+	if unsignedLoud {
+		lede = "UNSIGNED — not cryptographically verified. " + lede
+	}
+	footerExtra := attestLine
+	if unsignedLoud {
+		footerExtra = "UNSIGNED — not cryptographically verified · " + attestLine
+	}
 	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -292,7 +307,7 @@ func buyerOnePager(root string, res validate.Result) string {
   <title>CyberReady — Buyer One-Pager</title>
   <!-- cyberready-onepager-fp:%s -->
   <style>
-    :root { --ink:#1a1f2e; --muted:#5c6578; --line:#d8dde8; --ok:#1f6f43; --warn:#92400e; --steel:#3d4f66; }
+    :root { --ink:#1a1f2e; --muted:#5c6578; --line:#d8dde8; --ok:#1f6f43; --warn:#92400e; --steel:#3d4f66; --unsigned:#7f1d1d; }
     body { margin:0; font-family: "IBM Plex Sans", "Segoe UI", sans-serif; color:var(--ink);
       background: linear-gradient(165deg, #e8edf3 0%%, #f2f5f8 50%%, #dde5ee 100%%); min-height:100vh; }
     main { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
@@ -302,6 +317,7 @@ func buyerOnePager(root string, res validate.Result) string {
     .status { display:inline-block; padding:0.4rem 0.75rem; border-radius:4px; font-size:0.9rem; font-weight:600; }
     .status.ok { background:#e6f6ec; color:var(--ok); border:1px solid #b7e0c5; }
     .status.warn { background:#fff4e5; color:var(--warn); border:1px solid #f0d2a8; }
+    .status.unsigned { background:#fee2e2; color:var(--unsigned); border:2px solid #b91c1c; font-size:1.05rem; letter-spacing:0.02em; }
     .meter { margin:1.25rem 0; }
     .bar { height:12px; background:#dde3ee; border-radius:2px; overflow:hidden; margin-top:0.35rem; }
     .bar > span { display:block; height:100%%; background:var(--steel); width:%d%%; }
@@ -309,14 +325,16 @@ func buyerOnePager(root string, res validate.Result) string {
     th, td { text-align:left; padding:0.55rem 0.4rem; border-bottom:1px solid var(--line); vertical-align:top; }
     th { color:var(--muted); font-weight:600; }
     footer { margin-top:2rem; font-size:0.85rem; color:var(--muted); }
+    footer .unsigned-foot { color:var(--unsigned); font-weight:700; font-size:1rem; display:block; margin-bottom:0.5rem; }
   </style>
 </head>
 <body>
   <main>
     <div class="brand">CyberReady+</div>
     <h1>%s</h1>
-    <p class="lede">Structural evidence for human review — not conformity assessment. Supplier readiness snapshot for procurement review. Evidence is prepared locally — this page is not a certificate of conformity.</p>
+    <p class="lede">%s</p>
     <div class="status %s">%s</div>
+    <div class="status %s" style="margin-left:0.5rem">%s</div>
     <div class="meter">Readiness score: <strong>%d%%</strong>
       <div class="bar"><span></span></div>
     </div>
@@ -327,13 +345,45 @@ func buyerOnePager(root string, res validate.Result) string {
       </tbody>
     </table>
     <footer>
+      %s
       Structural evidence for human review — not conformity assessment. Generated %s · Packs: %s · Open <code>proof/index.html</code> for HPURL fragment inspection.
     </footer>
   </main>
 </body>
 </html>
-`, fp, res.Score, html.EscapeString(name), statusClass, html.EscapeString(status), res.Score, rows.String(),
+`, fp, res.Score, html.EscapeString(name), html.EscapeString(lede),
+		statusClass, html.EscapeString(status),
+		attestClass, html.EscapeString(attestLine),
+		res.Score, rows.String(),
+		footerHTML(footerExtra, unsignedLoud),
 		html.EscapeString(res.Payload.Timestamp), html.EscapeString(res.Payload.PackID))
+}
+
+func footerHTML(line string, unsignedLoud bool) string {
+	if unsignedLoud {
+		return `<span class="unsigned-foot">` + html.EscapeString(line) + `</span>`
+	}
+	return html.EscapeString(line) + " · "
+}
+
+// attestationBanner best-effort reads HEAD notes; default UNSIGNED loudness.
+func attestationBanner(root string) (line, class string, unsignedLoud bool) {
+	commit, err := gitutil.HeadSHA(root)
+	if err != nil || commit == "" || commit == "unknown" {
+		return "UNSIGNED — not cryptographically verified", "unsigned", true
+	}
+	body, err := gitutil.NotesShow(root, commit)
+	if err != nil || strings.TrimSpace(body) == "" {
+		return "UNSIGNED — not cryptographically verified", "unsigned", true
+	}
+	var cap attest.Capsule
+	if json.Unmarshal([]byte(body), &cap) != nil {
+		return "UNSIGNED — not cryptographically verified", "unsigned", true
+	}
+	if cap.UserTouch == "ssh-agent-signed" && cap.SSHSignature != "" && !strings.HasPrefix(cap.SSHSignature, "agent-bind:") {
+		return "ssh-agent-signed", "ok", false
+	}
+	return "UNSIGNED — not cryptographically verified", "unsigned", true
 }
 
 // ProofPageHTML returns static HPURL viewer with client-side hash verification.
