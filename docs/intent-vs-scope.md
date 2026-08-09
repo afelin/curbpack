@@ -28,6 +28,10 @@ CyberReady decides pass/fail. Chat may draft prose or remediation suggestions. C
 
 **Optional tutor:** Coreward (or local chat) may consume an airlocked explain-packet. The packet never greenlights — after any proposed fix you must re-check (`validate_delta` / `cyberready check`). Recorded loop: [`scripts/dogfood-explain-recheck.sh`](../scripts/dogfood-explain-recheck.sh) · [Coreward bridge](coreward-bridge.md).
 
+## Agentic coding: instrument panel / not AI security product
+
+Agents and humans share one loop: edit → `cyberready check` → read the instrument panel (covenant + optional Δ readiness/deps/secret-hits) → on red heal/ask; on green optional `--lay-of-land` / `--buyer-questions` for humans. This is **not** an AI security product, SCA/CVE platform, or certification engine. Hooks keep agent PRs honest; tutors still require re-`validate_delta` / re-check before any “fixed” claim.
+
 **Activate in 60s:** [getting-started / 60-second paths](getting-started/60-second-paths.md).
 
 See also: [Promotion firewall](promotion-firewall.md) · [Coreward bridge](coreward-bridge.md) · [Write your own pack](write-your-own-pack.md) · [Security model](security-model.md)

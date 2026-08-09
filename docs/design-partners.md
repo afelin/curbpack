@@ -33,6 +33,8 @@ Do **not** send partners to `docs/gtm-oss/` (non-product).
 
 Stars are not the scoreboard.
 
+**Look here (not a CVE product):** after green, `cyberready export --lay-of-land` surfaces an informational watchlist∩SBOM join inside the shareable map. Point partners at that file when they ask “what should I look at?” — do not pitch vulnerability management.
+
 ## Object-owner cadence checklist
 
 Ship the rhythm in-repo; the calendar is human-operated.

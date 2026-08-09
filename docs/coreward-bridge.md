@@ -66,7 +66,9 @@ cyberready sock --repo /path/to/product
 cyberready sock --path "$XDG_RUNTIME_DIR/cyberready/cyberready.sock" --repo /path/to/product
 ```
 
-See also: [Intent vs Scope](intent-vs-scope.md) (IP / chat boundary).
+Lay-of-land and explain-packet exports are teaching/share surfaces only — after any proposed fix, still re-run `validate_delta` / `cyberready check`. Neither export greenlights gates.
+
+See also: [Intent vs Scope](intent-vs-scope.md) (IP / chat boundary · agentic instrument panel).
 
 ## Dogfood checklist (explain-packet ↔ Coreward)
 
