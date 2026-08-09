@@ -1,8 +1,9 @@
 {
   "id": "cra-baseline",
-  "name": "EU CRA Baseline",
+  "name": "CRA Annex VII draft structure (informational)",
   "version": "0.1.0",
-  "description": "Baseline Cyber Resilience Act evidence gates for Annex VII drafts and dependency hygiene. Informational — not a conformity assessment.",
+  "assurance_class": "structural_draft",
+  "description": "Structural file/header gates for CRA Annex VII drafts and dependency hygiene — not essential-requirements conformity. Informational — not a conformity assessment.",
   "jurisdiction": "EU",
   "citations": [
     {

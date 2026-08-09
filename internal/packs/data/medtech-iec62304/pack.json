@@ -1,8 +1,9 @@
 {
   "id": "medtech-iec62304",
-  "name": "MedTech IEC 62304 Overlay",
+  "name": "MedTech IEC 62304 draft overlay (informational)",
   "version": "0.2.0",
-  "description": "Software lifecycle evidence gates for medical device software (IEC 62304-inspired). Extends cra-baseline. Prepares documentation for human review — not a notified-body certification.",
+  "assurance_class": "structural_draft",
+  "description": "Structural file/header gates for medical device software lifecycle drafts (IEC 62304-inspired) — not essential-requirements conformity. Extends cra-baseline. Prepares documentation for human review — not a notified-body certification.",
   "extends": "cra-baseline",
   "jurisdiction": "EU",
   "citations": [

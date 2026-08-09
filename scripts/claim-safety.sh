@@ -16,9 +16,9 @@ trap 'rm -rf "$TMP"' EXIT
 
 # Combined deny patterns (positive certification theater).
 # Lines with claim-safe negation framing are filtered out in Python.
-DENY_RE='we are (CE[- ])?certified|product is certified|officially certified|cyberready certifies|notified[- ]body approved|approved by (a )?notified body|conformity assessment (complete|passed|successful)|CE marking (issued|granted|obtained)|is CE[- ]marked|has been CE[- ]marked|certified conformity'
+DENY_RE='we are (CE[- ])?certified|product is certified|officially certified|cyberready certifies|notified[- ]body approved|approved by (a )?notified body|conformity assessment (complete|passed|successful)|CE marking (issued|granted|obtained)|is CE[- ]marked|has been CE[- ]marked|certified conformity|EU CRA Baseline|we are CRA compliant|CRA compliant'
 
-SAFE_RE='not (a |an )?(conformity|certif|CE)|does not certify|never claim|no certification|not CE|replace a notified|notified-body approval|certification_claimed.: false|Certification claimed: \*\*no\*\*|not a certification product|Not a certification'
+SAFE_RE='not (a |an )?(conformity|certif|CE)|does not certify|never claim|no certification|not CE|replace a notified|notified-body approval|certification_claimed.: false|Certification claimed: \*\*no\*\*|not a certification product|Not a certification|informational|draft structure|not essential-requirements|structural_draft|structural (file/header )?gates|not conformity assessment'
 
 scan_text() {
   local label="$1"
@@ -58,6 +58,21 @@ done < <(
 )
 
 for f in "${DOC_FILES[@]}"; do
+  if ! scan_text "$f" "$f"; then
+    FAIL=1
+  fi
+done
+
+echo "== claim-safety: pack.json display strings =="
+PACK_FILES=()
+while IFS= read -r f; do
+  PACK_FILES+=("$f")
+done < <(
+  find packs internal/packs/data \
+    \( -type f -name 'pack.json' \) \
+    2>/dev/null | sort -u
+)
+for f in "${PACK_FILES[@]}"; do
   if ! scan_text "$f" "$f"; then
     FAIL=1
   fi

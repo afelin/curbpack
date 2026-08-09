@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/afelin/cyberready/internal/buildinfo"
 )
 
 // Summary is a lightweight SBOM digest kept for backward compatibility.
@@ -156,7 +158,7 @@ func BuildCycloneDX(root string, pkgs []Package, source string) Document {
 	doc.Metadata.Tools.Components = []Component{{
 		Type:    "application",
 		Name:    "cyberready",
-		Version: "0.2.0",
+		Version: buildinfo.Version,
 	}}
 	doc.Metadata.Component = Component{
 		Type:   "application",

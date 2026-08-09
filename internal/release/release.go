@@ -315,7 +315,7 @@ func buyerOnePager(root string, res validate.Result) string {
   <main>
     <div class="brand">CyberReady+</div>
     <h1>%s</h1>
-    <p class="lede">Supplier readiness snapshot for procurement review. Evidence is prepared locally — this page is not a certificate of conformity.</p>
+    <p class="lede">Structural evidence for human review — not conformity assessment. Supplier readiness snapshot for procurement review. Evidence is prepared locally — this page is not a certificate of conformity.</p>
     <div class="status %s">%s</div>
     <div class="meter">Readiness score: <strong>%d%%</strong>
       <div class="bar"><span></span></div>
@@ -327,7 +327,7 @@ func buyerOnePager(root string, res validate.Result) string {
       </tbody>
     </table>
     <footer>
-      Generated %s · Packs: %s · Open <code>proof/index.html</code> for HPURL fragment inspection.
+      Structural evidence for human review — not conformity assessment. Generated %s · Packs: %s · Open <code>proof/index.html</code> for HPURL fragment inspection.
     </footer>
   </main>
 </body>

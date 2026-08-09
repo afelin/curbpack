@@ -39,6 +39,9 @@ func TestPrepareReleaseWritesPack(t *testing.T) {
 	if !strings.Contains(string(html), "not a certificate") {
 		t.Fatal("buyer html must disclaim certification")
 	}
+	if !strings.Contains(string(html), "Structural evidence for human review") {
+		t.Fatal("buyer html must stamp structural evidence honesty")
+	}
 	if err := release.Prepare(release.Options{
 		RepoRoot: dir, PackIDs: []string{"cra-baseline"}, OutDir: out, AllowFailingGates: true,
 	}); err != nil {

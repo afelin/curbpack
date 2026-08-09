@@ -2,7 +2,8 @@
   "id": "house-policy",
   "name": "House Policy Example",
   "version": "0.1.0",
-  "description": "Internal engineering policy pack template — banned deps, required security docs, secret-path forbids. Same schema as CRA/medtech packs; not a certification.",
+  "assurance_class": "structural_draft",
+  "description": "Structural file/header gates for internal engineering policy — banned deps, required security docs, secret-path forbids. Same schema as CRA/medtech packs; not essential-requirements conformity; not a certification.",
   "rules": [
     {
       "id": "HOUSE-SECURITY-MD",

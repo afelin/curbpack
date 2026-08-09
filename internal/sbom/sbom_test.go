@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/afelin/cyberready/internal/buildinfo"
 	"github.com/afelin/cyberready/internal/sbom"
 )
 
@@ -37,6 +38,16 @@ func TestCycloneDXFromPackageJSON(t *testing.T) {
 	if probe["bomFormat"] != "CycloneDX" {
 		t.Fatal("missing bomFormat")
 	}
+	if len(doc.Metadata.Tools.Components) == 0 || doc.Metadata.Tools.Components[0].Version != buildinfo.Version {
+		t.Fatalf("SBOM tool version=%q want buildinfo.Version=%q", toolVersion(doc), buildinfo.Version)
+	}
+}
+
+func toolVersion(doc sbom.Document) string {
+	if len(doc.Metadata.Tools.Components) == 0 {
+		return ""
+	}
+	return doc.Metadata.Tools.Components[0].Version
 }
 
 func TestNPMLockParse(t *testing.T) {

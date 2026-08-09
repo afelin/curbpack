@@ -44,10 +44,11 @@ type SARIFRule struct {
 }
 
 type SARIFResult struct {
-	RuleID    string          `json:"ruleId"`
-	Level     string          `json:"level"`
-	Message   SARIFMessage    `json:"message"`
-	Locations []SARIFLocation `json:"locations,omitempty"`
+	RuleID     string          `json:"ruleId"`
+	Level      string          `json:"level"`
+	Message    SARIFMessage    `json:"message"`
+	Locations  []SARIFLocation `json:"locations,omitempty"`
+	Properties map[string]any  `json:"properties,omitempty"`
 }
 
 type SARIFMessage struct {
@@ -116,6 +117,10 @@ func FromGateFailures(payload ir.GateFailurePayload) SARIFDocument {
 			RuleID:  f.GateID,
 			Level:   level,
 			Message: SARIFMessage{Text: f.SanitizedDescription},
+			Properties: map[string]any{
+				"assurance_class": "structural_draft",
+				"note":            "Structural evidence for human review — not a conformity assessment.",
+			},
 		}
 		file := strings.TrimSpace(f.ASTCoordinates.TargetFile)
 		if file != "" {
@@ -148,7 +153,8 @@ func FromGateFailures(payload ir.GateFailurePayload) SARIFDocument {
 			Invocations: []SARIFInvocation{{
 				ExecutionSuccessful: true,
 				Properties: map[string]any{
-					"note": "Prepares evidence for human review — not a conformity assessment.",
+					"assurance_class": "structural_draft",
+					"note":            "Structural evidence for human review — not a conformity assessment.",
 				},
 			}},
 		}},

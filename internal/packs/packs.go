@@ -66,19 +66,20 @@ type Validity struct {
 
 // Pack is an embedded regulation / house-policy pack.
 type Pack struct {
-	ID           string          `json:"id"`
-	Name         string          `json:"name"`
-	Version      string          `json:"version"`
-	Description  string          `json:"description"`
-	Extends      string          `json:"extends,omitempty"`
-	Overlays     []string        `json:"overlays,omitempty"`
-	Overlay      json.RawMessage `json:"overlay,omitempty"` // optional RFC 7386 merge-patch on pack object
-	Jurisdiction string          `json:"jurisdiction,omitempty"`
-	Validity     *Validity       `json:"validity,omitempty"`
-	Supersedes   string          `json:"supersedes,omitempty"`
-	SupersededBy string          `json:"superseded_by,omitempty"`
-	Citations    []Citation      `json:"citations,omitempty"`
-	Rules        []Rule          `json:"rules"`
+	ID             string          `json:"id"`
+	Name           string          `json:"name"`
+	Version        string          `json:"version"`
+	Description    string          `json:"description"`
+	AssuranceClass string          `json:"assurance_class,omitempty"`
+	Extends        string          `json:"extends,omitempty"`
+	Overlays       []string        `json:"overlays,omitempty"`
+	Overlay        json.RawMessage `json:"overlay,omitempty"` // optional RFC 7386 merge-patch on pack object
+	Jurisdiction   string          `json:"jurisdiction,omitempty"`
+	Validity       *Validity       `json:"validity,omitempty"`
+	Supersedes     string          `json:"supersedes,omitempty"`
+	SupersededBy   string          `json:"superseded_by,omitempty"`
+	Citations      []Citation      `json:"citations,omitempty"`
+	Rules          []Rule          `json:"rules"`
 }
 
 // Watchlist is informational only.

@@ -10,6 +10,7 @@ import (
 
 	"github.com/afelin/cyberready/internal/ask"
 	"github.com/afelin/cyberready/internal/attest"
+	"github.com/afelin/cyberready/internal/buildinfo"
 	"github.com/afelin/cyberready/internal/config"
 	"github.com/afelin/cyberready/internal/demo"
 	"github.com/afelin/cyberready/internal/doctor"
@@ -29,8 +30,9 @@ import (
 	"github.com/afelin/cyberready/internal/workflowdata"
 )
 
-// Version is set at release build via -ldflags "-X github.com/afelin/cyberready/internal/cli.Version=..."
-var Version = "0.4.1"
+// Version aliases buildinfo.Version for CLI surfaces.
+// Release builds set buildinfo via -ldflags "-X github.com/afelin/cyberready/internal/buildinfo.Version=...".
+var Version = buildinfo.Version
 
 // Stable exit codes (document in README):
 //
