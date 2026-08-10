@@ -7,25 +7,16 @@ Coreward is **not** required to build, test, launch, or use CyberReady (optional
 
 | Item | State |
 |------|--------|
-| CI on `main` | **Verified green** at tip `04587cd` — `test (ubuntu-latest)`, `test (macos-latest)`, `smoke`, `gauntlet`, `redteam-pilot` (+ dogfood/scoreboard) |
+| CI on `main` | **Verified green** at tip `f714700` — `test (ubuntu-latest)`, `test (macos-latest)`, `smoke`, `gauntlet`, `redteam-pilot` (+ dogfood/scoreboard) |
 | Required checks on `main` | **Configured via API** — exact names below; `strict` (branches up to date) **on**; `enforce_admins` **on** |
 | SPDX | **Apache-2.0** |
 | Release pin | **`@v0.4.3`** (no new tag) |
 | Discussion #4 body | **Verified** — claim-safe line + install ladder + Tester report pointer |
-| Discussion #4 pin | **Human-pending** — GraphQL has no `pinDiscussion` / `isPinned` (re-verified 2026-08-10); pin via GitHub UI only |
+| Discussion #4 pin | **Pinned** — confirmed via GraphQL `pinnedDiscussions` (2026-08-10); [Welcome to CyberReady+](https://github.com/afelin/cyberready/discussions/4) |
 | Tier-3 human pass | **Recorded 2026-08-10** on [Discussion #4](https://github.com/afelin/cyberready/discussions/4#discussioncomment-17960761) — install.sh → doctor → demo PASS (`@v0.4.3`, isolated HOME/PATH) |
-| Invite wave | **Ready except pin** — items 1–3 done; item 4 (Welcome Discussion pinned) needs human UI |
+| Invite wave | **Ready/open** — items 1–4 done (Welcome Discussion pinned) |
 
 Gap matrix: [github-readiness-gaps.md](github-readiness-gaps.md).
-
-### Human UI still needed — pin Discussion #4
-
-GitHub’s public GraphQL schema does **not** expose a pin mutation for Discussions (confirmed: `pinDiscussion` / `Discussion.isPinned` undefined). Automating the pin is not possible with `gh`/API today.
-
-1. Open https://github.com/afelin/cyberready/discussions/4
-2. Click **⋯** (or Pin) → **Pin discussion**
-3. Confirm it appears under the repo’s pinned Discussions
-4. After pinning, update this Status row to **Pinned** and refresh the tip SHA if needed
 
 ### Branch protection (already set; Settings mirror)
 
@@ -96,13 +87,13 @@ Before inviting external testers:
 2. Decision-maker understands: evidence for humans — **not** certification
 3. `SECURITY.md` reporting path is usable
 
-**Pass recorded:** 2026-08-10 on pinned Discussions welcome thread ([comment](https://github.com/afelin/cyberready/discussions/4#discussioncomment-17960761)). Pin of the thread itself is still human-pending (see Status).
+**Pass recorded:** 2026-08-10 on pinned Discussions welcome thread ([comment](https://github.com/afelin/cyberready/discussions/4#discussioncomment-17960761)).
 
 ## Discussions welcome (claim-safe)
 
 Welcome thread: https://github.com/afelin/cyberready/discussions/4
 
-**Pin:** human UI (not yet pinned as of 2026-08-10 Status stamp). Body must keep:
+**Pin:** **Pinned** (GraphQL `pinnedDiscussions`, 2026-08-10). Body must keep:
 
 > Prepares evidence for human review — **not** a conformity assessment, CE mark, or certification.
 >
@@ -117,7 +108,7 @@ Invite only when:
 1. Tier 0–1 CI green on `main` (required checks above) — **done**
 2. SPDX shows Apache-2.0 — **done**
 3. One Tier-3 human pass recorded — **done (2026-08-10)**
-4. Welcome Discussion pinned — **human-pending**
+4. Welcome Discussion pinned — **done**
 
 ## Object-owner cadence (30-day freeze)
 
