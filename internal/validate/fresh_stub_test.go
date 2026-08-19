@@ -99,6 +99,12 @@ func TestArt14PathBodyProductName(t *testing.T) {
 	if !strings.Contains(body, "Rehearsal status: unrehearsed draft") {
 		t.Fatal("Art14PathBody must include unrehearsed status line")
 	}
+	if !strings.Contains(body, "Drafted:") {
+		t.Fatal("Art14PathBody must include Drafted line")
+	}
+	if strings.Contains(body, "Last tabletop: 20") {
+		t.Fatal("Last tabletop must be empty — human fills after tabletop")
+	}
 	if packs.ScaffoldOverlap(body, packs.Art14RelPath(), "acme") {
 		t.Fatal("Art14PathBody must not overlap DefaultScaffoldBody")
 	}

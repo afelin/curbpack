@@ -40,10 +40,15 @@ curbpack scan</code></pre>
 
       <h3>After scan — optional pathway</h3>
       <ol>
-        <li><code>curbpack fix --art14</code> — scaffold <code>docs/incident/art14-path.md</code> (you edit; not auto-submission)</li>
+        <li><code>curbpack fix --art14</code> — scaffold <code>docs/incident/art14-path.md</code> (documented draft; fill <code>Last tabletop:</code> after tabletop)</li>
         <li><code>curbpack init --packs cra-baseline</code> — enable CRA-shaped structural gates locally</li>
         <li><code>curbpack check --score</code> — full evaluate + readiness % for human review</li>
       </ol>
+
+      <h3>Self-declared badge (copy-paste)</h3>
+      <pre class="mono"><code>curbpack scan --badge</code></pre>
+      <p class="muted">Emits one line, e.g. <code>Art 14 path · not rehearsed · self-declared · curbpack</code> until a human fills <code>Last tabletop:</code> in the repo. Gate green means <strong>documented</strong>; badge <strong>rehearsed</strong> only after human tabletop date.</p>
+      <p class="muted"><strong>Verify it yourself:</strong> run <code>curbpack scan --badge</code> in that repo — a pasted badge is self-declared; the command is the check.</p>
 
       <h3>What scan checks (informational)</h3>
       <ul>

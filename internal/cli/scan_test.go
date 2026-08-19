@@ -148,34 +148,84 @@ func TestRun_ScanBadge(t *testing.T) {
 	initScanGit(t, dir)
 	mustWriteScan(t, filepath.Join(dir, "package.json"), `{"name":"badgeco","version":"1.0.0"}`+"\n")
 
+	assertBadge := func(t *testing.T, stdout string, wantRehearsed bool) {
+		t.Helper()
+		if !strings.Contains(stdout, "Art 14 path ·") {
+			t.Fatalf("missing badge prefix: %q", stdout)
+		}
+		if !strings.Contains(stdout, "self-declared · curbpack") {
+			t.Fatalf("missing self-declared suffix: %q", stdout)
+		}
+		for _, bad := range []string{"failing", "not started", "CRA compliant", "passing", "green", "Drafted"} {
+			if strings.Contains(strings.ToLower(stdout), strings.ToLower(bad)) {
+				t.Fatalf("badge must not contain %q: %q", bad, stdout)
+			}
+		}
+		if wantRehearsed {
+			if !strings.Contains(stdout, "rehearsed") || strings.Contains(stdout, "not rehearsed") {
+				t.Fatalf("expected rehearsed badge: %q", stdout)
+			}
+		} else if !strings.Contains(stdout, "not rehearsed") {
+			t.Fatalf("expected not rehearsed badge: %q", stdout)
+		}
+		if strings.Contains(stdout, "CURBPACK SCAN") {
+			t.Fatalf("badge mode must not print full scan header: %q", stdout)
+		}
+	}
+
+	runBadge := func(t *testing.T, args []string) string {
+		t.Helper()
+		stdout, _ := capture(t, func() {
+			old, _ := os.Getwd()
+			_ = os.Chdir(dir)
+			defer func() { _ = os.Chdir(old) }()
+			if err := cli.Run(args); err != nil {
+				t.Fatal(err)
+			}
+		})
+		return stdout
+	}
+
 	for _, args := range [][]string{
 		{"scan", "--badge"},
 		{"scan", "--format", "markdown"},
 	} {
 		args := args
-		t.Run(strings.Join(args, " "), func(t *testing.T) {
-			stdout, _ := capture(t, func() {
-				old, _ := os.Getwd()
-				_ = os.Chdir(dir)
-				defer func() { _ = os.Chdir(old) }()
-				if err := cli.Run(args); err != nil {
-					t.Fatal(err)
-				}
-			})
-			if !strings.Contains(stdout, "Art 14 scan:") {
-				t.Fatalf("missing badge prefix: %q", stdout)
-			}
-			if !strings.Contains(stdout, "days until 2026-09-11") {
-				t.Fatalf("missing countdown: %q", stdout)
-			}
-			if !strings.Contains(stdout, "structural evidence, not certification") {
-				t.Fatalf("missing disclaimer: %q", stdout)
-			}
-			if strings.Contains(stdout, "CURBPACK SCAN") {
-				t.Fatalf("badge mode must not print full scan header: %q", stdout)
-			}
+		t.Run(strings.Join(args, " ")+"/cold", func(t *testing.T) {
+			assertBadge(t, runBadge(t, args), false)
 		})
 	}
+
+	t.Run("after fix --art14 still not rehearsed", func(t *testing.T) {
+		_, _ = capture(t, func() {
+			old, _ := os.Getwd()
+			_ = os.Chdir(dir)
+			defer func() { _ = os.Chdir(old) }()
+			if err := cli.Run([]string{"fix", "--art14", "--yes"}); err != nil {
+				t.Fatal(err)
+			}
+		})
+		assertBadge(t, runBadge(t, []string{"scan", "--badge"}), false)
+	})
+
+	t.Run("after human fills Last tabletop", func(t *testing.T) {
+		path := filepath.Join(dir, "docs", "incident", "art14-path.md")
+		body, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		updated := strings.Replace(string(body), "Last tabletop:\n", "Last tabletop: 2026-03-01\n", 1)
+		if err := os.WriteFile(path, []byte(updated), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		stdout := runBadge(t, []string{"scan", "--badge"})
+		if !strings.Contains(stdout, "rehearsed 2026-03-01") {
+			t.Fatalf("expected human-filled date in badge: %q", stdout)
+		}
+		if !strings.Contains(stdout, "months ago") && !strings.Contains(stdout, "month ago") {
+			t.Fatalf("expected staleness suffix: %q", stdout)
+		}
+	})
 }
 
 func TestRun_AskMySuppliers(t *testing.T) {

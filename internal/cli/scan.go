@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/afelin/curbpack/internal/clock"
 	"github.com/afelin/curbpack/internal/config"
@@ -49,8 +51,7 @@ func cmdScan(args []string) error {
 	days := clock.DaysUntilUTC(clock.Art14ReportingStart)
 
 	if flags.badge || flags.formatMarkdown {
-		fmt.Printf("Art 14 scan: %d days until 2026-09-11 · %d failing · %d not started — structural evidence, not certification\n",
-			days, len(failing), len(notStarted))
+		fmt.Println(art14BadgeLine(root, clock.NowUTC()))
 		return nil
 	}
 
@@ -230,4 +231,51 @@ func scanShowsENISAMapping(packIDs []string) bool {
 		}
 	}
 	return false
+}
+
+var lastTabletopDateRE = regexp.MustCompile(`(?im)^Last tabletop:\s*(\d{4}-\d{2}-\d{2})`)
+
+// art14BadgeLine emits a copy-paste badge from Last tabletop: only (never Drafted:).
+func art14BadgeLine(root string, now time.Time) string {
+	path := filepath.Join(root, packs.Art14RelPath())
+	body, err := os.ReadFile(path)
+	if err != nil {
+		return "Art 14 path · not rehearsed · self-declared · curbpack"
+	}
+	date, ok := parseLastTabletopDate(string(body))
+	if !ok {
+		return "Art 14 path · not rehearsed · self-declared · curbpack"
+	}
+	return fmt.Sprintf("Art 14 path · rehearsed %s %s · self-declared · curbpack",
+		date.Format("2006-01-02"), formatMonthsAgo(date, now))
+}
+
+func parseLastTabletopDate(body string) (time.Time, bool) {
+	m := lastTabletopDateRE.FindStringSubmatch(body)
+	if len(m) < 2 || strings.TrimSpace(m[1]) == "" {
+		return time.Time{}, false
+	}
+	t, err := time.Parse("2006-01-02", m[1])
+	if err != nil {
+		return time.Time{}, false
+	}
+	return t.UTC(), true
+}
+
+func formatMonthsAgo(t, now time.Time) string {
+	months := (now.Year()-t.Year())*12 + int(now.Month()-t.Month())
+	if now.Day() < t.Day() {
+		months--
+	}
+	if months < 0 {
+		months = 0
+	}
+	switch months {
+	case 0:
+		return "(this month)"
+	case 1:
+		return "(1 month ago)"
+	default:
+		return fmt.Sprintf("(%d months ago)", months)
+	}
 }
