@@ -245,6 +245,51 @@ func checkFilePresent(root string, rule packs.Rule) []ir.Failure {
 	return nil
 }
 
+func checkFresh(root string, rule packs.Rule) []ir.Failure {
+	if fs := checkFilePresent(root, rule); len(fs) > 0 {
+		return fs
+	}
+	rel := filepath.ToSlash(rule.Path)
+	if rule.MaxAgeDays > 0 {
+		meta, err := gitutil.FileLastCommit(root, rel)
+		if err != nil {
+			return []ir.Failure{failFromRule(rule, rel, "fresh: "+err.Error())}
+		}
+		age := time.Since(meta.Time)
+		if age > time.Duration(rule.MaxAgeDays)*24*time.Hour {
+			return []ir.Failure{failFromRule(rule, rel, fmt.Sprintf("fresh: last commit %s older than %d days", meta.Time.Format(time.RFC3339), rule.MaxAgeDays))}
+		}
+	}
+	if ref := strings.TrimSpace(rule.SinceRef); ref != "" {
+		ok, err := gitutil.FileTouchedSinceRef(root, ref, rel)
+		if err != nil {
+			return []ir.Failure{failFromRule(rule, rel, "fresh since_ref: "+err.Error())}
+		}
+		if !ok {
+			return []ir.Failure{failFromRule(rule, rel, "fresh: no commit since "+ref)}
+		}
+	}
+	return nil
+}
+
+func checkOwned(root string, rule packs.Rule) []ir.Failure {
+	if fs := checkFilePresent(root, rule); len(fs) > 0 {
+		return fs
+	}
+	rel := filepath.ToSlash(rule.Path)
+	meta, err := gitutil.FileLastCommit(root, rel)
+	if err != nil {
+		return []ir.Failure{failFromRule(rule, rel, "owned: "+err.Error())}
+	}
+	if want := strings.TrimSpace(rule.RequireGitAuthorEmail); want != "" && !strings.EqualFold(meta.Email, want) {
+		return []ir.Failure{failFromRule(rule, rel, fmt.Sprintf("owned: last commit author email %q want %q", meta.Email, want))}
+	}
+	if want := strings.TrimSpace(rule.RequireGitAuthorName); want != "" && meta.Name != want {
+		return []ir.Failure{failFromRule(rule, rel, fmt.Sprintf("owned: last commit author name %q want %q", meta.Name, want))}
+	}
+	return nil
+}
+
 func wordCount(s string) int {
 	n := 0
 	in := false

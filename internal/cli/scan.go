@@ -16,15 +16,16 @@ import (
 )
 
 func cmdScan(args []string) error {
-	if len(args) > 0 {
-		return usageErr("scan: unknown argument " + args[0])
+	flags, err := parseScanFlags(args)
+	if err != nil {
+		return err
 	}
 	root, err := gitutil.RepoRoot("")
 	if err != nil {
 		return usageErr("must run inside a git repository")
 	}
 
-	packIDs, err := config.ResolvePackIDs(root, nil)
+	packIDs, err := config.ResolvePackIDsForScan(root, flags.packIDs)
 	if err != nil {
 		return err
 	}
@@ -39,6 +40,20 @@ func cmdScan(args []string) error {
 		return err
 	}
 
+	composed, _, err := packs.Compose(packIDs)
+	if err != nil {
+		return err
+	}
+
+	notStarted, failing := classifyFindings(res.Payload.Failures)
+	days := clock.DaysUntilUTC(clock.Art14ReportingStart)
+
+	if flags.badge || flags.formatMarkdown {
+		fmt.Printf("Art 14 scan: %d days until 2026-09-11 · %d failing · %d not started — structural evidence, not certification\n",
+			days, len(failing), len(notStarted))
+		return nil
+	}
+
 	tty.PrintHeader("CURBPACK SCAN")
 	fmt.Printf("%s\n", tty.C(tty.Bold+tty.Yellow, "Read-only — no files written, no hooks, no init. Not conformity assessment."))
 	fmt.Printf("%s\n\n", tty.C(tty.Dim, "Diagnosis only — use curbpack check --score for readiness %."))
@@ -48,7 +63,10 @@ func cmdScan(args []string) error {
 	fmt.Printf("Repo: %s\n", root)
 	fmt.Printf("Packs: %s\n", strings.Join(packIDs, ", "))
 
-	days := clock.DaysUntilUTC(clock.Art14ReportingStart)
+	if scanShowsENISAMapping(packIDs) {
+		fmt.Printf("%s\n", tty.C(tty.Dim, "ENISA SME maturity mapping (informational): docs/mappings/enisa-cra-mapping.md"))
+	}
+
 	switch {
 	case days > 0:
 		fmt.Printf("Art 14 reporting clock: %d days until 2026-09-11\n", days)
@@ -58,26 +76,39 @@ func cmdScan(args []string) error {
 		fmt.Printf("Art 14 reporting clock: started %d days ago (2026-09-11)\n", -days)
 	}
 
-	notStarted, failing := classifyFindings(res.Payload.Failures)
+	failingIDs := failureGateIDs(res.Payload.Failures)
+	satisfied := satisfiedRules(composed, failingIDs)
+
 	fmt.Printf("\nOpen signals: %d failing · %d not started\n", len(failing), len(notStarted))
 
-	limit := 5
-	shown := 0
+	satShown := 0
+	for _, rule := range satisfied {
+		if satShown >= 3 {
+			break
+		}
+		fmt.Printf("  ✔ [%s] %s — %s\n", rule.Severity, rule.ID, ruleDisplayPath(rule))
+		satShown++
+	}
+	if len(satisfied) > 3 {
+		fmt.Printf("  … and %d more satisfied\n", len(satisfied)-3)
+	}
+
+	openShown := 0
 	for _, f := range failing {
-		if shown >= limit {
+		if openShown >= 5 {
 			break
 		}
 		fmt.Printf("  ✘ [%s] %s — %s\n", f.Severity, f.GateID, shortFinding(f))
-		shown++
+		openShown++
 	}
 	for _, f := range notStarted {
-		if shown >= limit {
+		if openShown >= 5 {
 			break
 		}
 		fmt.Printf("  ○ [%s] %s — %s (not started)\n", f.Severity, f.GateID, shortFinding(f))
-		shown++
+		openShown++
 	}
-	rest := len(failing) + len(notStarted) - shown
+	rest := len(failing) + len(notStarted) - openShown
 	if rest > 0 {
 		fmt.Printf("  … and %d more\n", rest)
 	}
@@ -85,10 +116,56 @@ func cmdScan(args []string) error {
 	if res.Passed {
 		fmt.Printf("\n%s\n", tty.C(tty.Green, "No open gate findings on this tree — still not certification."))
 	} else {
-		fmt.Printf("\n%s\n", tty.C(tty.Dim, "Next: curbpack fix --art14 · curbpack init · curbpack check --score"))
+		fmt.Printf("\n%s\n", tty.C(tty.Dim, scanNextLine(res.Payload.Failures)))
 	}
 	fmt.Printf("%s\n", tty.C(tty.Dim, "Prepares evidence for human review — not a conformity assessment."))
 	return nil
+}
+
+func scanNextLine(failures []ir.Failure) string {
+	if hasGateFailure(failures, "CRA-ART14-PATH") {
+		return "Next: curbpack fix --art14 · curbpack init · curbpack check --score"
+	}
+	return "Next: curbpack init · curbpack check --score"
+}
+
+func failureGateIDs(failures []ir.Failure) map[string]struct{} {
+	ids := make(map[string]struct{}, len(failures))
+	for _, f := range failures {
+		if f.GateID != "" {
+			ids[f.GateID] = struct{}{}
+		}
+	}
+	return ids
+}
+
+func satisfiedRules(composed packs.Pack, failingIDs map[string]struct{}) []packs.Rule {
+	var out []packs.Rule
+	for _, rule := range composed.Rules {
+		if _, fail := failingIDs[rule.ID]; !fail {
+			out = append(out, rule)
+		}
+	}
+	return out
+}
+
+func ruleDisplayPath(rule packs.Rule) string {
+	if p := strings.TrimSpace(rule.Path); p != "" {
+		return p
+	}
+	if len(rule.Paths) > 0 {
+		return rule.Paths[0]
+	}
+	return rule.Description
+}
+
+func hasGateFailure(failures []ir.Failure, gateID string) bool {
+	for _, f := range failures {
+		if f.GateID == gateID {
+			return true
+		}
+	}
+	return false
 }
 
 func productHint(root string) (name, source string) {
@@ -144,4 +221,13 @@ func shortFinding(f ir.Failure) string {
 		return f.SanitizedDescription[:69] + "..."
 	}
 	return f.SanitizedDescription
+}
+
+func scanShowsENISAMapping(packIDs []string) bool {
+	for _, id := range packIDs {
+		if id == "cra-baseline" || id == "medtech-iec62304" {
+			return true
+		}
+	}
+	return false
 }

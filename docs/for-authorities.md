@@ -17,6 +17,7 @@ Voice: [voice and terms](voice-and-terms.md). Abbreviations: [glossary and audie
 
 | Artifact | How produced | Trust level (honest) |
 |----------|--------------|----------------------|
+| **Scan output** (`scan`, `npx curbpack scan`) | Read-only pack evaluation; no cache, no init | **Structural diagnosis** — defaults to `cra-baseline` on cold repos; not certification |
 | Gate JSON / action report (`check`, `validate`) | Local deterministic pack evaluation | **Structural evidence** — reproducible on the same tree; not a legal finding |
 | SARIF export | `export --sarif` / Action upload | Same findings in IDE/CI format; still pack gates, not certification |
 | Buyer-questions checklist | `export --buyer-questions` | Human Q&A aid; rows carry `assurance_class: structural_draft` |
@@ -71,7 +72,8 @@ CI enforces wording via `scripts/claim-safety.sh`. This page is **not** certific
 
 ## Pack chooser (what suppliers should run)
 
-Default cold start is **`house-policy`**. CRA-style (`cra-baseline`) and medtech (`medtech-iec62304`) are **opt-in** via `--packs` — catalog frozen until freeze review. Assistants and auditors should ask which pack ids were composed (see ContextPack `pack_ids` / GateFailure `pack_id`). Details: [assistant-loop pack chooser](assistant-loop.md#pack-chooser-cold-start).
+**Scan** on a cold repo defaults to **`cra-baseline`** (Art 14 clock + CRA-shaped gates, read-only).  
+**Init / check** cold start defaults to **`house-policy`**. CRA-style (`cra-baseline`) and medtech (`medtech-iec62304`) for init are also available via `--packs` — catalog frozen until freeze review. Assistants and auditors should ask which pack ids were composed (see ContextPack `pack_ids` / GateFailure `pack_id`). Details: [assistant-loop pack chooser](assistant-loop.md#pack-chooser-cold-start).
 
 CRA Art 14 reporting (11 September 2026) is not the same clock as vulnerability-handling / public SPOC. Opt-in `cra-baseline` may require an in-repo dated rehearsal file — not a live SRP or EU Login check. AI Act Art 50 marking grace is **not** blanket (only systems already on the market before 2 August 2026). Counsel note: [Art 14 reporting vs handling](getting-started/art14-reporting-vs-handling.md).
 

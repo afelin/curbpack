@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Reporting date: internal/clock/clock.go Art14ReportingStart (2026-09-11 UTC) -->
+  <title>Article 14 reporting clock — Curbpack</title>
+  <meta name="description" content="Read-only scan for CRA Article 14 reporting-path structural drafts. Not conformity assessment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/curbpack/assets/site.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="site-nav" aria-label="Primary">
+      <a class="mark" href="/curbpack/">Curbpack</a>
+      <ul>
+        <li><a href="/curbpack/for-builders/">Builders</a></li>
+        <li><a href="/curbpack/for-reviewers/">Reviewers</a></li>
+        <li><a href="/curbpack/for-authorities/">Authorities</a></li>
+        <li><a href="/curbpack/art14/" aria-current="page">Art 14</a></li>
+        <li><a href="/curbpack/how-it-works/">How it works</a></li>
+        <li><a href="https://github.com/RI-SE/curbpack" rel="noopener">Source</a></li>
+      </ul>
+    </nav>
+
+    <section class="section prose">
+      <h2>Article 14 reporting starts 11 September 2026</h2>
+      <p class="sub">Curbpack helps you rehearse an in-repo <strong>reporting-path draft</strong> before the CRA Article 14 reporting clock. This is <strong>not</strong> conformity assessment, EU Login verification, or live Single Reporting Platform access.</p>
+      <p class="muted">structural_draft · informational · date source: <code>internal/clock/clock.go</code> (<code>Art14ReportingStart</code>)</p>
+
+      <h3>Primary — read-only scan</h3>
+      <pre class="mono"><code>npx curbpack@0.5.2 scan</code></pre>
+      <p class="muted">Read-only — no files written. Run inside any git repository.</p>
+
+      <h3>Fallback install (curl)</h3>
+      <pre class="mono"><code>curl -fsSL https://raw.githubusercontent.com/afelin/curbpack/main/scripts/install.sh | sh
+curbpack scan</code></pre>
+
+      <h3>After scan — optional pathway</h3>
+      <ol>
+        <li><code>curbpack fix --art14</code> — scaffold <code>docs/incident/art14-path.md</code> (you edit; not auto-submission)</li>
+        <li><code>curbpack init --packs cra-baseline</code> — enable CRA-shaped structural gates locally</li>
+        <li><code>curbpack check --score</code> — full evaluate + readiness % for human review</li>
+      </ol>
+
+      <h3>What scan checks (informational)</h3>
+      <ul>
+        <li>Art 14 reporting clock vs <code>internal/clock/clock.go</code> (<code>Art14ReportingStart</code>)</li>
+        <li>Open signals on the <code>cra-baseline</code> pack (missing annex drafts, placeholders, dependency pins)</li>
+        <li>Pointer to <a href="https://github.com/afelin/curbpack/blob/main/docs/mappings/enisa-cra-mapping.md">ENISA SME maturity mapping</a> (informational — not ENISA endorsement)</li>
+      </ul>
+
+      <p class="muted">Legal reference: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R2847">EUR-Lex CRA (32024R2847)</a> · Install: <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/install.md">docs/getting-started/install.md</a></p>
+    </section>
+
+    <footer class="site-footer">
+      <p><strong>Read-only — no files written. Not conformity assessment.</strong></p>
+      <p>Canonical repo: <a href="https://github.com/afelin/curbpack" rel="noopener">afelin/curbpack</a> · mirror <a href="https://github.com/RI-SE/curbpack" rel="noopener">RI-SE</a> · Pages at <a href="https://ri-se.github.io/curbpack/">ri-se.github.io</a></p>
+      <p><a href="/curbpack/">Home</a> · <a href="/curbpack/llms.txt">llms.txt</a> · <a href="/curbpack/for-authorities/">Authorities</a></p>
+      <p>Development supported by RISE Research Institutes of Sweden as an applied research / competence object. RISE does not certify products that use Curbpack gate results.</p>
+    </footer>
+  </div>
+</body>
+</html>

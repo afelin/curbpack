@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 // RepoRoot walks up from cwd (or start) until .git is found.
@@ -236,4 +237,52 @@ func LatestNoteCommit(repoRoot string) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("no attest notes found")
+}
+
+// FileCommitMeta is the latest commit touching path (git log -1).
+type FileCommitMeta struct {
+	Hash  string
+	Email string
+	Name  string
+	Time  time.Time
+}
+
+// FileLastCommit returns metadata for the most recent commit that touched rel path.
+func FileLastCommit(repoRoot, rel string) (FileCommitMeta, error) {
+	rel = filepath.ToSlash(strings.TrimSpace(rel))
+	if rel == "" {
+		return FileCommitMeta{}, fmt.Errorf("empty path")
+	}
+	out, err := runGit(repoRoot, "log", "-1", "--format="+`%H%x1f%ae%x1f%an%x1f%ct`, "--", rel)
+	if err != nil {
+		return FileCommitMeta{}, err
+	}
+	if out == "" {
+		return FileCommitMeta{}, fmt.Errorf("no commits for %s", rel)
+	}
+	parts := strings.Split(out, "\x1f")
+	if len(parts) < 4 {
+		return FileCommitMeta{}, fmt.Errorf("unexpected git log format for %s", rel)
+	}
+	var sec int64
+	fmt.Sscanf(parts[3], "%d", &sec)
+	return FileCommitMeta{
+		Hash:  parts[0],
+		Email: parts[1],
+		Name:  parts[2],
+		Time:  time.Unix(sec, 0).UTC(),
+	}, nil
+}
+
+// FileTouchedSinceRef reports whether rel has a commit after sinceRef (exclusive..HEAD].
+func FileTouchedSinceRef(repoRoot, sinceRef, rel string) (bool, error) {
+	sinceRef = strings.TrimSpace(sinceRef)
+	if sinceRef == "" {
+		return false, fmt.Errorf("empty since_ref")
+	}
+	out, err := runGit(repoRoot, "log", "-1", "--format=%H", sinceRef+"..HEAD", "--", rel)
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(out) != "", nil
 }

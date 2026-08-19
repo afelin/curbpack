@@ -34,12 +34,36 @@ func TestRun_ScanReadOnly(t *testing.T) {
 	if !strings.Contains(stdout, "Art 14 reporting clock") {
 		t.Fatalf("missing Art 14 clock: %q", stdout)
 	}
+	if !strings.Contains(stdout, "Packs: cra-baseline") {
+		t.Fatalf("uninitialized scan must default to cra-baseline: %q", stdout)
+	}
+	if !strings.Contains(stdout, "ENISA SME maturity mapping") {
+		t.Fatalf("cra-baseline scan must show ENISA mapping pointer: %q", stdout)
+	}
 	if strings.Contains(stdout, "Readiness Score") {
 		t.Fatal("scan must not show readiness thermometer")
 	}
 	cache := filepath.Join(dir, ".github", "curbpack", "cache", "latest_failure.json")
 	if _, err := os.Stat(cache); err == nil {
 		t.Fatal("scan must not write cache")
+	}
+}
+
+func TestRun_ScanHousePolicyNoENISA(t *testing.T) {
+	dir := t.TempDir()
+	initScanGit(t, dir)
+	mustWriteScan(t, filepath.Join(dir, "README.md"), "# Demo\n")
+
+	stdout, _ := capture(t, func() {
+		old, _ := os.Getwd()
+		_ = os.Chdir(dir)
+		defer func() { _ = os.Chdir(old) }()
+		if err := cli.Run([]string{"scan", "--packs", "house-policy"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if strings.Contains(stdout, "ENISA SME maturity mapping") {
+		t.Fatalf("house-policy scan must not show ENISA line: %q", stdout)
 	}
 }
 
@@ -70,6 +94,88 @@ func TestRun_FixArt14Yes(t *testing.T) {
 	if string(b) == packs.DefaultScaffoldBody(packs.Art14RelPath()) {
 		t.Fatal("fix --art14 must write Art14PathBody not DefaultScaffoldBody")
 	}
+	if strings.Contains(string(b), "YYYY-MM-DD") {
+		t.Fatal("fix --art14 must prefill dates, not YYYY-MM-DD placeholders")
+	}
+}
+
+func TestRun_ScanAfterFixArt14(t *testing.T) {
+	dir := t.TempDir()
+	initScanGit(t, dir)
+	mustWriteScan(t, filepath.Join(dir, "package.json"), `{"name":"fixco","version":"1.0.0"}`+"\n")
+
+	runScan := func() string {
+		t.Helper()
+		stdout, _ := capture(t, func() {
+			old, _ := os.Getwd()
+			_ = os.Chdir(dir)
+			defer func() { _ = os.Chdir(old) }()
+			if err := cli.Run([]string{"scan"}); err != nil {
+				t.Fatal(err)
+			}
+		})
+		return stdout
+	}
+
+	before := runScan()
+	if !strings.Contains(before, "fix --art14") {
+		t.Fatalf("cold scan must suggest fix --art14 in Next: %q", before)
+	}
+
+	stdoutFix, _ := capture(t, func() {
+		old, _ := os.Getwd()
+		_ = os.Chdir(dir)
+		defer func() { _ = os.Chdir(old) }()
+		if err := cli.Run([]string{"fix", "--art14", "--yes"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(stdoutFix, "docs/incident/art14-path.md") {
+		t.Fatalf("fix output: %q", stdoutFix)
+	}
+
+	after := runScan()
+	if !strings.Contains(after, "✔") || !strings.Contains(after, "CRA-ART14-PATH") {
+		t.Fatalf("post-fix scan must show satisfied CRA-ART14-PATH: %q", after)
+	}
+	if strings.Contains(after, "fix --art14") {
+		t.Fatalf("post-fix scan must not suggest fix --art14: %q", after)
+	}
+}
+
+func TestRun_ScanBadge(t *testing.T) {
+	dir := t.TempDir()
+	initScanGit(t, dir)
+	mustWriteScan(t, filepath.Join(dir, "package.json"), `{"name":"badgeco","version":"1.0.0"}`+"\n")
+
+	for _, args := range [][]string{
+		{"scan", "--badge"},
+		{"scan", "--format", "markdown"},
+	} {
+		args := args
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			stdout, _ := capture(t, func() {
+				old, _ := os.Getwd()
+				_ = os.Chdir(dir)
+				defer func() { _ = os.Chdir(old) }()
+				if err := cli.Run(args); err != nil {
+					t.Fatal(err)
+				}
+			})
+			if !strings.Contains(stdout, "Art 14 scan:") {
+				t.Fatalf("missing badge prefix: %q", stdout)
+			}
+			if !strings.Contains(stdout, "days until 2026-09-11") {
+				t.Fatalf("missing countdown: %q", stdout)
+			}
+			if !strings.Contains(stdout, "structural evidence, not certification") {
+				t.Fatalf("missing disclaimer: %q", stdout)
+			}
+			if strings.Contains(stdout, "CURBPACK SCAN") {
+				t.Fatalf("badge mode must not print full scan header: %q", stdout)
+			}
+		})
+	}
 }
 
 func TestRun_AskMySuppliers(t *testing.T) {
@@ -89,8 +195,55 @@ func TestRun_AskMySuppliers(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	if !strings.Contains(stdout, "buyer-questions") {
-		t.Fatalf("expected buyer-questions status: %q", stdout)
+	if !strings.Contains(stdout, "For human review:") {
+		t.Fatalf("stdout must include human question text: %q", stdout)
+	}
+	if !strings.Contains(stdout, "Subject: Supplier evidence checklist") {
+		t.Fatalf("stdout must include supplier email subject: %q", stdout)
+	}
+	if !strings.Contains(stdout, "Writes review-pack/supplier-checklist.md") {
+		t.Fatalf("stdout must warn that review-pack is written: %q", stdout)
+	}
+	if !strings.Contains(stdout, "---") {
+		t.Fatalf("stdout must separate checklist and email with ---: %q", stdout)
+	}
+
+	mdPath := filepath.Join(dir, "review-pack", "supplier-checklist.md")
+	if _, err := os.Stat(mdPath); err != nil {
+		t.Fatalf("expected review-pack/supplier-checklist.md: %v", err)
+	}
+	jsonPath := filepath.Join(dir, "review-pack", "supplier-checklist.json")
+	if _, err := os.Stat(jsonPath); err != nil {
+		t.Fatalf("expected review-pack/supplier-checklist.json: %v", err)
+	}
+	cacheMD := filepath.Join(dir, ".github", "curbpack", "cache", "buyer-questions.md")
+	if _, err := os.Stat(cacheMD); err == nil {
+		t.Fatal("ask-my-suppliers must not write cache buyer-questions.md")
+	}
+	if _, err := os.Stat(filepath.Join(dir, ".github")); !os.IsNotExist(err) {
+		t.Fatal("virgin repo: ask-my-suppliers must not create .github/")
+	}
+}
+
+func TestRun_AskMySuppliersStdoutOnly(t *testing.T) {
+	dir := t.TempDir()
+	initScanGit(t, dir)
+	mustWriteScan(t, filepath.Join(dir, "README.md"), "# Demo\n")
+	mustWriteScan(t, filepath.Join(dir, ".curbpack.json"), `{"packs":["house-policy"]}`+"\n")
+
+	stdout, _ := capture(t, func() {
+		old, _ := os.Getwd()
+		_ = os.Chdir(dir)
+		defer func() { _ = os.Chdir(old) }()
+		if err := cli.Run([]string{"ask-my-suppliers", "--stdout-only"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(stdout, "Subject: Supplier evidence checklist") {
+		t.Fatalf("stdout-only must still print email: %q", stdout)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "review-pack")); !os.IsNotExist(err) {
+		t.Fatal("--stdout-only must not write review-pack/")
 	}
 }
 

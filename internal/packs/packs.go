@@ -27,6 +27,8 @@ var supportedChecks = map[string]struct{}{
 	"manifest_dep_ban": {},
 	"text_forbid":      {},
 	"import_reach":     {},
+	"fresh":            {},
+	"owned":            {},
 }
 
 // Rule is a single pack gate definition (JSON-eval, no OPA).
@@ -44,8 +46,12 @@ type Rule struct {
 	RequireTreePaths []string   `json:"require_tree_paths,omitempty"`
 	Package          string     `json:"package,omitempty"`
 	BannedVersions   []string   `json:"banned_versions,omitempty"`
-	Pattern          string     `json:"pattern,omitempty"`
-	Description      string     `json:"description"`
+	Pattern                string `json:"pattern,omitempty"`
+	MaxAgeDays             int    `json:"max_age_days,omitempty"`
+	SinceRef               string `json:"since_ref,omitempty"`
+	RequireGitAuthorEmail  string `json:"require_git_author_email,omitempty"`
+	RequireGitAuthorName   string `json:"require_git_author_name,omitempty"`
+	Description            string `json:"description"`
 	Remediation      string     `json:"remediation"`
 	Expected         string     `json:"expected"`
 	Citations        []Citation `json:"citations,omitempty"`
@@ -249,6 +255,26 @@ func ValidatePack(p Pack) error {
 			}
 			if len(r.BannedVersions) == 0 {
 				return fmt.Errorf("pack %q rule %q: banned_versions required", p.ID, r.ID)
+			}
+		case "fresh":
+			if strings.TrimSpace(r.Path) == "" {
+				return fmt.Errorf("pack %q rule %q: path required for fresh", p.ID, r.ID)
+			}
+			if err := ValidateRelPath(r.Path); err != nil {
+				return fmt.Errorf("pack %q rule %q: %w", p.ID, r.ID, err)
+			}
+			if r.MaxAgeDays <= 0 && strings.TrimSpace(r.SinceRef) == "" {
+				return fmt.Errorf("pack %q rule %q: fresh requires max_age_days or since_ref", p.ID, r.ID)
+			}
+		case "owned":
+			if strings.TrimSpace(r.Path) == "" {
+				return fmt.Errorf("pack %q rule %q: path required for owned", p.ID, r.ID)
+			}
+			if err := ValidateRelPath(r.Path); err != nil {
+				return fmt.Errorf("pack %q rule %q: %w", p.ID, r.ID, err)
+			}
+			if !r.BindRepoToken {
+				return fmt.Errorf("pack %q rule %q: owned requires bind_repo_token: true", p.ID, r.ID)
 			}
 		}
 	}

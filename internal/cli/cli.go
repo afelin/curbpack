@@ -132,12 +132,13 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Ladder:\n")
 	fmt.Fprintf(os.Stderr, "  doctor [--repair] Environment confidence; --repair = local PATH/alias only\n")
 	fmt.Fprintf(os.Stderr, "  demo [--open]    Sandbox check (browser only with --open)\n")
-	fmt.Fprintf(os.Stderr, "  scan             Read-only repo diagnosis (alias: reality-check)\n")
+	fmt.Fprintf(os.Stderr, "  scan [--packs a,b] Read-only repo diagnosis (alias: reality-check)\n")
 	fmt.Fprintf(os.Stderr, "  fix --art14      Write Art 14 rehearsal file (one file; diff preview)\n")
 	fmt.Fprintf(os.Stderr, "  init [--profile house|cra|medtech] [--packs a,b] [--workflow]\n")
 	fmt.Fprintf(os.Stderr, "                   Default: house-policy + hooks + skill + ide\n")
 	fmt.Fprintf(os.Stderr, "  check [--heal] [--score]  Daily loop (--score shows readiness %%)\n")
-	fmt.Fprintf(os.Stderr, "  ask-my-suppliers Buyer checklist (same as export --buyer-questions)\n")
+	fmt.Fprintf(os.Stderr, "  ask-my-suppliers [--stdout-only] [--out path]\n")
+	fmt.Fprintf(os.Stderr, "                   Supplier checklist → stdout + review-pack/ (writes files)\n")
 	fmt.Fprintf(os.Stderr, "  share [--bundle] [--reveal] check → context-pack → buyer-questions → prepare-release\n")
 	fmt.Fprintf(os.Stderr, "  drift [--json]   Multi-signal evidence checklist (exit 0 always)\n")
 	fmt.Fprintf(os.Stderr, "  prepare-release  Review-pack + evidence\n")
@@ -599,20 +600,37 @@ func cmdPacks(args []string) error {
 }
 
 func cmdAskMySuppliers(args []string) error {
+	f, err := parseAskMySuppliersFlags(args)
+	if err != nil {
+		return err
+	}
 	root, err := gitutil.RepoRoot("")
 	if err != nil {
 		return usageErr("must run inside a git repository")
 	}
-	packIDs := []string(nil)
-	if len(args) > 0 {
-		return usageErr("ask-my-suppliers: unknown argument " + args[0])
-	}
-	path, n, err := exportx.WriteBuyerQuestions(root, packIDs, "")
+
+	report, err := exportx.BuildBuyerQuestionsReportReadOnly(root, f.packIDs)
 	if err != nil {
 		return err
 	}
-	tty.PrintStatus("buyer-questions", true, fmt.Sprintf("%s questions=%d", path, n))
-	fmt.Printf("%s\n", tty.C(tty.Dim, "Hand checklist to suppliers — not conformity assessment."))
+
+	tty.PrintHeader("curbpack ask-my-suppliers")
+	fmt.Printf("%s\n", tty.C(tty.Bold+tty.Yellow, "Writes review-pack/supplier-checklist.md — unlike scan, this command creates files. Not conformity assessment."))
+	fmt.Printf("%s\n\n", tty.C(tty.Dim, "Copy the checklist and email below to suppliers — not CE / not notified-body."))
+
+	fmt.Print(exportx.FormatBuyerQuestionsMarkdown(report))
+	fmt.Println("---")
+	fmt.Print(exportx.FormatSupplierEmailTemplate(report))
+
+	if f.stdoutOnly {
+		return nil
+	}
+
+	path, n, err := exportx.WriteSupplierChecklistReport(root, report, f.out)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\n%s\n", tty.C(tty.Dim, fmt.Sprintf("Wrote %s (%d questions)", path, n)))
 	return nil
 }
 

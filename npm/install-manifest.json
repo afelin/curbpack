@@ -1,0 +1,12 @@
+{
+  "schema": "curbpack-install-manifest:1",
+  "default_version": "v0.5.2",
+  "claim": "Prepares evidence for human review — not a conformity assessment.",
+  "assets": [
+    "curbpack_darwin_amd64",
+    "curbpack_darwin_arm64",
+    "curbpack_linux_amd64",
+    "curbpack_linux_arm64",
+    "curbpack_windows_amd64.exe"
+  ]
+}

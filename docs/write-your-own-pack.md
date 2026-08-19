@@ -75,6 +75,8 @@ curbpack packs doctor                    # expired / superseded / pin skew
 | `manifest_dep_ban` / `npm_dep_ban` | `package`, `banned_versions` | Ban pins in `package.json` |
 | `text_forbid` | `paths`, `pattern` | Regex forbid (e.g. secret-like strings) |
 | `import_reach` | — | Optional AST reachability (MVP) |
+| `fresh` | `path`, `max_age_days` and/or `since_ref` | File must exist and last commit must be within age or after ref |
+| `owned` | `path`, `bind_repo_token: true`; optional `require_git_author_email`, `require_git_author_name` | Repo-bound draft; optional git author match on last commit touching path |
 
 ## Load paths
 

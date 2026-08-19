@@ -97,6 +97,37 @@ jobs:
           $global:LASTEXITCODE = 0
           Pop-Location
           exit 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+      - name: npm wrapper scan (Windows)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $npmHome = Join-Path $env:TEMP "curbpack npm home $(Get-Random)"
+          $scanDir = Join-Path $env:TEMP "curbpack npm scan $(Get-Random)"
+          New-Item -ItemType Directory -Force -Path $npmHome, $scanDir | Out-Null
+          Push-Location $npmHome
+          $pkg = npm pack "$env:GITHUB_WORKSPACE/npm" --silent
+          npm init -y | Out-Null
+          npm install (Join-Path $env:GITHUB_WORKSPACE "npm" $pkg) | Out-Null
+          Pop-Location
+          Push-Location $scanDir
+          git init -q
+          git config user.email "ci@curbpack.local"
+          git config user.name "CI"
+          git commit --allow-empty -m init -q
+          $env:CURBPACK_BIN = Join-Path $env:GITHUB_WORKSPACE "bin\curbpack.exe"
+          $wrapper = Join-Path $npmHome "node_modules\.bin\curbpack.cmd"
+          if (-not (Test-Path $wrapper)) { $wrapper = Join-Path $npmHome "node_modules\.bin\curbpack" }
+          $out = & $wrapper scan 2>&1 | Out-String
+          Write-Host $out
+          if ($out -notmatch 'Art 14 reporting clock') { throw "missing Art 14 clock" }
+          if ($out -notmatch 'Packs: cra-baseline') { throw "missing cra-baseline default" }
+          if ($out -notmatch 'Read-only') { throw "missing read-only banner" }
+          if (git status --porcelain) { throw "git status not clean after scan" }
+          Pop-Location
+          exit 0
 
   smoke:
     runs-on: ubuntu-latest
@@ -283,6 +314,37 @@ jobs:
           "$GITHUB_WORKSPACE/bin/curbpack" attest --allow-dirty >/dev/null
           H2=$(python3 -c 'import json;print(json.load(open(".github/curbpack/evidence/hpurl-pointer.json"))["state_hash"])')
           test "$H1" = "$H2"
+      - name: Scan read-only smoke (uninitialized repo)
+        run: |
+          set -euo pipefail
+          SCAN=$(mktemp -d)
+          cd "$SCAN"
+          git init -q
+          git config user.email "ci@curbpack.local"
+          git config user.name "CI"
+          git commit --allow-empty -m init -q
+          OUT=$("$GITHUB_WORKSPACE/bin/curbpack" scan 2>&1)
+          printf '%s\n' "$OUT"
+          printf '%s\n' "$OUT" | grep -q 'Art 14 reporting clock'
+          printf '%s\n' "$OUT" | grep -q 'Packs: cra-baseline'
+          printf '%s\n' "$OUT" | grep -q 'Read-only'
+          test -z "$(git status --porcelain)"
+
+  npm-smoke:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.23.x"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+      - name: Build workspace binary (CURBPACK_BIN for wrapper smoke)
+        run: ./scripts/ci-build.sh
+      - name: npm wrapper smoke
+        run: ./scripts/npm-smoke.sh
 
   pin-guard:
     runs-on: ubuntu-latest
@@ -385,12 +447,30 @@ jobs:
           if sh "$GITHUB_WORKSPACE/scripts/install.sh"; then
             export PATH="$INST:$PATH"
             curbpack doctor
+            SCAN=$(mktemp -d)
+            cd "$SCAN"
+            git init -q
+            git config user.email "ci@curbpack.local"
+            git config user.name "CI"
+            git commit --allow-empty -m init -q
+            curbpack scan | grep -q 'Art 14 reporting clock'
+            test -z "$(git status --porcelain)"
+            cd -
             DEMO=$(mktemp -d)
             curbpack demo --out "$DEMO" --keep
             test -f "$DEMO/review-pack/buyer-onepager.html"
           else
             echo "release install unavailable — falling back to workspace binary"
             "$GITHUB_WORKSPACE/bin/curbpack" doctor
+            SCAN=$(mktemp -d)
+            cd "$SCAN"
+            git init -q
+            git config user.email "ci@curbpack.local"
+            git config user.name "CI"
+            git commit --allow-empty -m init -q
+            "$GITHUB_WORKSPACE/bin/curbpack" scan | grep -q 'Art 14 reporting clock'
+            test -z "$(git status --porcelain)"
+            cd -
             DEMO=$(mktemp -d)
             "$GITHUB_WORKSPACE/bin/curbpack" demo --out "$DEMO" --keep
             test -f "$DEMO/review-pack/buyer-onepager.html"

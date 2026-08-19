@@ -94,6 +94,7 @@
           <a href="/curbpack/for-builders/" class="text-ink-muted hover:text-ink transition-colors">Builders</a>
           <a href="/curbpack/for-reviewers/" class="text-ink-muted hover:text-ink transition-colors">Reviewers</a>
           <a href="/curbpack/for-authorities/" class="text-ink-muted hover:text-ink transition-colors">Authorities</a>
+          <a href="/curbpack/art14/" class="text-ink-muted hover:text-ink transition-colors">Art 14</a>
           <a href="/curbpack/how-it-works/" class="text-ink-muted hover:text-ink transition-colors">How it works</a>
           <a href="https://github.com/RI-SE/curbpack" rel="noopener" class="text-ink-muted hover:text-ink transition-colors font-semibold">Source</a>
         </div>
@@ -109,43 +110,28 @@
 
           <div class="lg:col-span-6 animate-fade-in-up">
             <div class="inline-flex items-center px-2.5 py-1 mb-6 border border-ink/10 bg-paper text-xs font-mono font-medium text-ink-muted uppercase tracking-wider">
-              Open Source Evidence CLI
+              CRA Article 14 · read-only scan
             </div>
-            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-ink leading-[1.1] mb-6">
-              Local rule packs. <br/>
-              <span class="text-rise">A review pack for buyers.</span>
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-ink leading-[1.1] mb-4">
+              Article 14 reporting starts 11 September 2026
             </h1>
-            <p class="text-lg sm:text-xl text-ink-muted mb-6 max-w-2xl leading-relaxed font-sans">
-              Curbpack checks your repository against local rule packs and writes a review pack you can hand to a buyer or auditor—on your machine, without claiming certification.
+            <p id="art14-countdown" class="font-mono text-base sm:text-lg text-rise font-medium mb-6" aria-live="polite"></p>
+            <p class="text-lg sm:text-xl text-ink-muted mb-8 max-w-2xl leading-relaxed font-sans">
+              One command, writes nothing — not certification. Curbpack scans your repo read-only on your machine; we never see your code.
             </p>
-            <p class="text-base text-ink-muted mb-6 max-w-2xl leading-relaxed font-sans">
-              On Write, build <strong class="text-ink font-semibold">curb outlines (your pathway sketch)</strong> before check. After you confirm packs, Curbpack builds a <strong class="text-ink font-semibold">local pack→rule map</strong> that steers drafting—not a legal oracle.
-            </p>
-
-            <div class="flex flex-col sm:flex-row gap-3 mb-4 text-sm font-medium text-ink-muted">
-              <span class="inline-flex flex-col sm:flex-row sm:items-center gap-1 px-3 py-1.5 border border-ink/15 bg-paper">
-                <span class="text-ink font-semibold">Write</span>
-                <span class="text-ink-muted font-normal">curb outlines</span>
-              </span>
-              <span class="inline-flex flex-col sm:flex-row sm:items-center gap-1 px-3 py-1.5 border border-ink/15 bg-paper">
-                <span class="text-ink font-semibold">Bring</span>
-                <span class="text-ink-muted font-normal">files already there</span>
-              </span>
-              <span class="inline-flex flex-col sm:flex-row sm:items-center gap-1 px-3 py-1.5 border border-ink/15 bg-paper">
-                <span class="text-ink font-semibold">CI</span>
-                <span class="text-ink-muted font-normal">Action alone</span>
-              </span>
-            </div>
 
             <div class="flex flex-col sm:flex-row gap-4 mb-3">
-              <a href="/curbpack/for-builders/" class="btn-brutal inline-flex justify-center items-center px-6 py-3 border border-ink text-base font-semibold text-paper bg-ink">
-                Pick how you start
+              <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/install.md#ladder-0--read-only-scan-no-install" class="btn-brutal inline-flex justify-center items-center px-6 py-3 border border-ink text-base font-semibold text-paper bg-ink">
+                npx curbpack scan
+              </a>
+              <a href="/curbpack/art14/" class="btn-brutal inline-flex justify-center items-center px-6 py-3 border border-ink text-base font-semibold text-ink bg-paper hover:bg-paper-alt">
+                Art 14 page
               </a>
               <a href="/curbpack/samples/onepager.html" class="btn-brutal inline-flex justify-center items-center px-6 py-3 border border-ink text-base font-semibold text-ink bg-paper hover:bg-paper-alt">
                 Open full sample
               </a>
             </div>
-            <p class="font-mono text-xs text-ink-muted mb-10">Windows · macOS · Linux · curb check · on green curb share</p>
+            <p class="font-mono text-xs text-ink-muted mb-10">Read-only first — <code class="text-ink">npx curbpack@0.5.2 scan</code> · Windows · macOS · Linux · <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/install.md" class="underline decoration-paper-dark hover:text-rise">install doc</a></p>
 
             <div class="inline-flex items-start p-3 bg-status-errBg border border-status-err/20 text-sm text-status-err">
               <svg class="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -218,7 +204,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-16">
           <h2 class="font-serif text-3xl font-semibold text-ink mb-3">How it works</h2>
-          <p class="text-ink-muted text-lg">Three ways in → local check → review pack → human review. Write starts with curb outlines.</p>
+          <p class="text-ink-muted text-lg">Scan read-only → optional init → local check → review pack → human review.</p>
+          <p class="text-ink-muted text-sm mt-3">Three ways in (Write, Bring, CI): <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/60-second-paths.md" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">60-second paths</a> · <a href="/curbpack/how-it-works/" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">how it works</a></p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
@@ -226,8 +213,8 @@
 
           <div class="bg-paper border border-paper-dark p-6 relative z-10 hover:border-ink transition-colors">
             <span class="font-mono text-xs text-ink-muted mb-2 block">01</span>
-            <h3 class="font-semibold text-ink text-lg mb-1">Curb outlines / packs</h3>
-            <p class="text-sm text-ink-muted font-mono">Pathway sketch; pack→rule map after confirm</p>
+            <h3 class="font-semibold text-ink text-lg mb-1">Read-only scan</h3>
+            <p class="text-sm text-ink-muted font-mono">npx curbpack scan — no files written</p>
           </div>
 
           <div class="bg-paper border border-paper-dark p-6 relative z-10 hover:border-ink transition-colors">
@@ -250,11 +237,7 @@
         </div>
 
         <p class="mt-6 text-center text-sm text-ink-muted">
-          Write: curb outlines → dual drafts → cite-check → check. Bring and CI skip outlines and go straight to check.
-        </p>
-
-        <p class="mt-6 text-center text-sm text-ink-muted">
-          Detail: <a href="/curbpack/how-it-works/" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">how it works</a>
+          Optional Write path: curb outlines → dual drafts → cite-check → check. Bring and CI skip outlines. Detail: <a href="/curbpack/how-it-works/" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">how it works</a>
           · Voice: <a href="https://github.com/RI-SE/curbpack/blob/main/docs/voice-and-terms.md" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">voice and terms</a>
           · Optional writer aid: <a href="/curbpack/samples/research-brief.html" class="font-mono text-ink underline decoration-paper-dark hover:text-rise">research brief sample</a>
         </p>
@@ -272,7 +255,7 @@
               Green checks in your repo in under ten minutes. Dual install for Windows (PowerShell) and macOS/Linux — same doctor → demo → init → check → share ladder.
             </p>
             <a href="/curbpack/for-builders/" class="font-mono text-sm font-semibold text-ink uppercase tracking-wide group-hover:text-rise transition-colors inline-flex items-center">
-              Three ways in <span class="ml-1 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+              Full ladder <span class="ml-1 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
             </a>
             <p class="mt-3 font-mono text-xs text-ink-muted">
               Install: <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/install.md" class="underline decoration-paper-dark hover:text-rise">docs/getting-started/install.md</a>
@@ -311,6 +294,11 @@
 
         <div>
           <p class="font-mono font-bold tracking-tight uppercase mb-4 text-paper/90">Curbpack</p>
+          <p class="text-sm text-paper/60 mb-2 max-w-md leading-relaxed">
+            Canonical repo: <a href="https://github.com/afelin/curbpack" rel="noopener" class="text-paper/80 hover:text-paper underline">afelin/curbpack</a>
+            · mirror <a href="https://github.com/RI-SE/curbpack" rel="noopener" class="text-paper/80 hover:text-paper underline">RI-SE</a>
+            · Pages at <a href="https://ri-se.github.io/curbpack/" class="text-paper/80 hover:text-paper underline">ri-se.github.io</a>
+          </p>
           <p class="text-sm text-paper/60 mb-4 max-w-md leading-relaxed">
             Development supported by RISE Research Institutes of Sweden as an applied research / competence object.
             <span class="text-paper"> RISE does not certify products that use Curbpack gate results.</span>
@@ -323,14 +311,32 @@
             <a href="/curbpack/security/" class="text-paper/70 hover:text-paper transition-colors text-left md:text-right">Security</a>
             <a href="/curbpack/llms.txt" class="text-paper/70 hover:text-paper transition-colors text-left md:text-right">Agent index (llms.txt)</a>
             <a href="/curbpack/samples/onepager.html" class="text-paper/70 hover:text-paper transition-colors text-left md:text-right">One-pager sample</a>
-            <a href="https://github.com/RI-SE/curbpack" rel="noopener" class="text-paper/70 hover:text-paper transition-colors text-left md:text-right">Source (RI-SE)</a>
-            <a href="https://github.com/afelin/curbpack" rel="noopener" class="text-paper/50 hover:text-paper transition-colors text-left md:text-right">Mirror</a>
+            <a href="/curbpack/art14/" class="text-paper/70 hover:text-paper transition-colors text-left md:text-right">Art 14 scan</a>
           </div>
         </div>
 
       </div>
     </div>
   </footer>
+
+  <script>
+  (function () {
+    // Matches internal/clock/clock.go Art14ReportingStart (2026-09-11 UTC)
+    var ART14_START = Date.UTC(2026, 8, 11);
+    function daysUntil() {
+      var now = new Date();
+      var nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      return Math.floor((ART14_START - nowUTC) / 86400000);
+    }
+    function formatCountdown(days) {
+      if (days > 0) return days + ' day' + (days === 1 ? '' : 's') + ' until 11 September 2026';
+      if (days === 0) return 'starts today (11 September 2026)';
+      return 'started ' + (-days) + ' day' + (-days === 1 ? '' : 's') + ' ago (11 September 2026)';
+    }
+    var el = document.getElementById('art14-countdown');
+    if (el) el.textContent = formatCountdown(daysUntil());
+  })();
+  </script>
 
 </body>
 </html>

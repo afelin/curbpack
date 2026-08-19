@@ -80,3 +80,18 @@ func ResolvePackIDs(root string, cli []string) ([]string, error) {
 	}
 	return []string{"house-policy"}, nil
 }
+
+// ResolvePackIDsForScan returns CLI override, else config packs, else cra-baseline (scan cold start).
+func ResolvePackIDsForScan(root string, cli []string) ([]string, error) {
+	if len(cli) > 0 {
+		return cli, nil
+	}
+	cfg, err := Load(root)
+	if err != nil {
+		return nil, err
+	}
+	if cfg != nil && len(cfg.Packs) > 0 {
+		return cfg.Packs, nil
+	}
+	return []string{"cra-baseline"}, nil
+}

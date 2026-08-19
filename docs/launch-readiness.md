@@ -59,7 +59,7 @@ Configure these as **required status checks** on `main` (Settings → Branches �
 | `test (macos-latest)` | `ci.yml` → `test` (macos) | `go test ./...` fails |
 | `smoke` | `ci.yml` → `smoke` | doctor/demo or CRA/house happy paths fail |
 | `gauntlet` | `ci.yml` → `gauntlet` | claim-safety, heal smoke, baseline ratchet, dead-ends, install-from-release |
-| `redteam-pilot` | `ci.yml` → `redteam-pilot` | `./scripts/redteam-pilot.sh` not 18/18 |
+| `redteam-pilot` | `ci.yml` → `redteam-pilot` | `./scripts/redteam-pilot.sh` not 13/13 |
 
 Optional (not merge-blocking): `gauntlet-nightly` in `.github/workflows/gauntlet.yml` (realish + adversarial depth + optional OSS clone crash/hang only).
 
@@ -93,7 +93,7 @@ Deny-list blocks certification theater; negation / claim-safe framing is allowed
 
 - Market promise: a stranger’s **first green &lt;10 minutes** on pin `@v0.5.2` (safe try / product repo / CI).
 - Maintainer harness: [`scripts/time-to-green.sh`](../scripts/time-to-green.sh) defaults to a **600s** wall-clock bar; use `TTG_MAX_SECONDS=60` for a tight CI smoke.
-- Merge gate: required check **`redteam-pilot`** (`./scripts/redteam-pilot.sh` 18/18). No public vanity counter.
+- Merge gate: required check **`redteam-pilot`** (`./scripts/redteam-pilot.sh` 13/13). No public vanity counter.
 - Gap matrix (stakeholder demand → Evidence): [github-readiness-gaps.md](github-readiness-gaps.md).
 
 ## Tier 3 — human pass (before invite wave)
@@ -114,7 +114,8 @@ Welcome thread: https://github.com/afelin/curbpack/discussions/4
 
 > Prepares evidence for human review — **not** a conformity assessment, CE mark, or certification.
 >
-> Try: `curl -fsSL https://raw.githubusercontent.com/afelin/curbpack/main/scripts/install.sh | sh && curbpack doctor && curbpack demo`
+> Try (read-only): `npx curbpack@0.5.2 scan`  
+> Try (safe sandbox): `curl -fsSL https://raw.githubusercontent.com/afelin/curbpack/main/scripts/install.sh | sh && curbpack doctor && curbpack demo`
 >
 > Tester reports: use the **Tester report** issue template.
 

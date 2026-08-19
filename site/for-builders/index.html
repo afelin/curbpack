@@ -84,11 +84,11 @@ curbpack check</code></pre>
       </ul>
 
       <h3>Daily loop</h3>
-      <p class="muted"><code>curb</code> is a short alias for <code>curbpack</code> (same binary). Pin stays <code>@v0.5.2</code>.</p>
-      <pre class="mono"><code>curb check                 # or curbpack check
-# red: curb check --heal && curb ask .github/curbpack/cache/latest_failure.json --propose
-# green handoff: curb share
-# human: curb attest  → optional proof/index.html</code></pre>
+      <pre class="mono"><code>curbpack check
+# red: curbpack check --heal && curbpack ask .github/curbpack/cache/latest_failure.json --propose
+# green handoff: curbpack share
+# human: curbpack attest  → optional proof/index.html</code></pre>
+      <p class="muted"><code>curb</code> is a short alias for <code>curbpack</code> (same binary) — available only after install. Pin stays <code>@v0.5.2</code>.</p>
       <p class="muted">On red: heal, then ask propose, then re-check — never invent green. On green: <code>share</code> is the handoff recipe (check → context-pack → buyer-questions → prepare-release). After attest, open local <code>proof/index.html</code> vs the evidence pointer — still not conformity assessment.</p>
 
       <p>Human pathway guide: <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/pathway.md">docs/getting-started/pathway.md</a>. Recipes: <a href="https://github.com/afelin/curbpack/blob/main/docs/getting-started/60-second-paths.md">60-second paths</a>. Go deeper: <a href="/curbpack/whitepaper/">white paper</a> · <a href="/curbpack/how-it-works/">how it works</a>.</p>
@@ -97,7 +97,8 @@ curbpack check</code></pre>
     </section>
 
     <footer class="site-footer">
-      <p><a href="/curbpack/">Home</a> · <a href="/curbpack/llms.txt">llms.txt</a> · <a href="/curbpack/samples/onepager.html">Sample</a> · <a href="/curbpack/whitepaper/">White paper</a> · <a href="/curbpack/security/">Security</a> · <a href="https://github.com/RI-SE/curbpack" rel="noopener">Source (RI-SE)</a> · <a href="https://github.com/afelin/curbpack" rel="noopener">Mirror</a></p>
+      <p>Canonical repo: <a href="https://github.com/afelin/curbpack" rel="noopener">afelin/curbpack</a> · mirror <a href="https://github.com/RI-SE/curbpack" rel="noopener">RI-SE</a> · Pages at <a href="https://ri-se.github.io/curbpack/">ri-se.github.io</a></p>
+      <p><a href="/curbpack/">Home</a> · <a href="/curbpack/llms.txt">llms.txt</a> · <a href="/curbpack/samples/onepager.html">Sample</a> · <a href="/curbpack/whitepaper/">White paper</a> · <a href="/curbpack/security/">Security</a></p>
       <p>Development supported by RISE Research Institutes of Sweden as an applied research / competence object. RISE does not certify products that use Curbpack gate results.</p>
     </footer>
   </div>
