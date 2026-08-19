@@ -9,7 +9,10 @@ Stakeholder asks mapped to the **current** Curbpack stack. Evidence paths are re
 | Claim-safe public language (no CE / notified-body theater) | Done | [`scripts/claim-safety.sh`](../scripts/claim-safety.sh) · [promotion firewall](promotion-firewall.md) · [voice and terms](voice-and-terms.md) |
 | Understandability (cold-reader four-question bar) | Done | Home alone answers: what is it / what do I run / what do I get / what must I not claim — [voice and terms](voice-and-terms.md) · [launch readiness](launch-readiness.md); claim-safety green; home/builders jargon spot-check clean |
 | Institute / agency endorsement refuse (never claim `RISE-approved` / `FRA-approved` / `NCSC-approved` / `agency-endorsed`) | Done | DENY list in `claim-safety.sh` · [promotion firewall](promotion-firewall.md) |
-| Adversarial false-green scoreboard | Done | [`scripts/redteam-pilot.sh`](../scripts/redteam-pilot.sh) · [security model](security-model.md) |
+| Adversarial false-green scoreboard | Done | [`scripts/redteam-pilot.sh`](../scripts/redteam-pilot.sh) cases 1, 2, 5, 8, 10–12, 16–21 · [security model](security-model.md) |
+| Forged attest note not verified | Done | `internal/attest` · redteam case 19 |
+| Tampered cache fake green | Done | `internal/exportx` context-pack re-validate · redteam case 20 |
+| Symlink escape via pathjail | Done | `pathjail.Join` · redteam case 21 |
 | Action must not prefer workspace `./bin/curbpack` | Done | `action.yml` resolve · redteam case 1 |
 | Pack path jail / `.git` refuse | Done | `SafeJoin` · `internal/formhints` ApplyStubs · redteam cases 3–4 |
 | Attest OCC / `--allow-dirty` honesty | Done | `internal/attest` · redteam case (attest dirty) |

@@ -11,9 +11,7 @@ cd "$ROOT"
 CHANGED_ONLY=0; for arg in "$@"; do [[ "$arg" == --changed-only ]] && CHANGED_ONLY=1; done
 
 BIN="${CURBPACK_BIN:-${CYBERREADY_BIN:-$ROOT/bin/curbpack}}"
-if [[ ! -x "$BIN" ]]; then
-  go build -o "$BIN" ./cmd/curbpack
-fi
+go build -o "$BIN" ./cmd/curbpack
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -196,6 +194,37 @@ fi
 "$BIN" help >"$TMP/help.out" 2>&1 || true
 scan_text "help" "$TMP/help.out" || FAIL=1
 scan_brand "help" "$TMP/help.out" || FAIL=1
+
+# scan --badge: deny state assertions (grep-based; badge text is time-dependent).
+BADGE="$TMP/badge"
+mkdir -p "$BADGE"
+(
+  cd "$BADGE"
+  git init -q
+  git config user.email "ci@curbpack.local"
+  git config user.name "CI"
+  git commit --allow-empty -m init -q
+  echo '{"name":"badgeco","version":"1.0.0"}' > package.json
+  "$BIN" scan --badge >"$TMP/badge-cold.out" 2>&1 || true
+  "$BIN" fix --art14 --yes >"$TMP/badge-fix.out" 2>&1 || true
+  "$BIN" scan --badge >"$TMP/badge-postfix.out" 2>&1 || true
+)
+scan_text "scan-badge-cold" "$TMP/badge-cold.out" || FAIL=1
+scan_text "scan-badge-postfix" "$TMP/badge-postfix.out" || FAIL=1
+for f in "$TMP/badge-cold.out" "$TMP/badge-postfix.out"; do
+  if grep -qiE 'failing|not started|CRA[- ]ready|CRA compliant|\bgreen\b|passing|0 failing' "$f"; then
+    echo "CLAIM-SAFETY FAIL [scan-badge]: state assertion in badge output → $(grep -iE 'failing|not started|CRA|green|passing' "$f" | head -1)" >&2
+    FAIL=1
+  fi
+  if grep -q 'Drafted' "$f"; then
+    echo "CLAIM-SAFETY FAIL [scan-badge]: badge must not expose Drafted field" >&2
+    FAIL=1
+  fi
+done
+if ! grep -q 'not rehearsed' "$TMP/badge-postfix.out"; then
+  echo "CLAIM-SAFETY FAIL [scan-badge-postfix]: fix alone must not produce rehearsed badge" >&2
+  FAIL=1
+fi
 
 # Skill install path must be curbpack (not legacy cyberready skill dir name in output).
 if [[ -f "$FIX/.cursor/skills/curbpack/SKILL.md" ]]; then

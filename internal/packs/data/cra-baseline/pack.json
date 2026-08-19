@@ -3,7 +3,7 @@
   "name": "CRA Annex VII draft structure (informational)",
   "version": "0.1.0",
   "assurance_class": "structural_draft",
-  "description": "Structural file/header gates for CRA Annex VII drafts, an Art 14 reporting-path rehearsal file, and dependency hygiene — not essential-requirements conformity. Informational — not a conformity assessment.",
+  "description": "Structural file/header gates for CRA Annex VII drafts, an Art 14 reporting-path file, and dependency hygiene — not essential-requirements conformity. Informational — not a conformity assessment.",
   "jurisdiction": "EU",
   "citations": [
     {
@@ -69,9 +69,9 @@
         "## Rehearsal dated artifact"
       ],
       "bind_repo_token": true,
-      "description": "CRA Art 14 reporting-path rehearsal file missing, too short, or lacking required section headers. Structural file gate only — not a live SRP or EU Login check; not vulnerability-handling/SPOC evidence.",
-      "remediation": "Populate docs/incident/art14-path.md with this product's Art 14 reporting path (named owner + dated rehearsal record). Distinguish reporting (11 Sept 2026) from vulnerability-handling/public SPOC (later clock). Do not claim EU Login works. Mention this product (package.json name, go.mod module, or repo directory name).",
-      "expected": "Art 14 reporting-path rehearsal file present with required headers and a repo-bound product mention. Dated in-repo artifact only — not a live SRP check.",
+      "description": "CRA Art 14 reporting path file missing, too short, or lacking required section headers. Structural file gate only — documents the path; does not mean tabletop rehearsed. Not a live SRP or EU Login check; not vulnerability-handling/SPOC evidence.",
+      "remediation": "Populate docs/incident/art14-path.md with this product's Art 14 reporting path (named owner + Drafted date). Fill Last tabletop: after tabletop for badge rehearsed. Distinguish reporting (11 Sept 2026) from vulnerability-handling/public SPOC (later clock). Do not claim EU Login works. Mention this product (package.json name, go.mod module, or repo directory name).",
+      "expected": "Art 14 reporting path file present with required headers and a repo-bound product mention. Documented draft only — not a live SRP check; badge shows rehearsed only after human fills Last tabletop:.",
       "citations": [
         {
           "framework": "EU",
@@ -93,9 +93,9 @@
         "docs/annex-vii/user_manual_security.md",
         "docs/incident/art14-path.md"
       ],
-      "description": "Annex VII drafts or Art 14 rehearsal file contain placeholder / boilerplate text.",
+      "description": "Annex VII drafts or Art 14 path file contain placeholder / boilerplate text.",
       "remediation": "Replace TODO / lorem ipsum / [insert ...] placeholders with real product content.",
-      "expected": "No placeholder patterns in Annex VII drafts or the Art 14 rehearsal file."
+      "expected": "No placeholder patterns in Annex VII drafts or the Art 14 path file."
     },
     {
       "id": "CRA-DEP-AXIOS-PIN",

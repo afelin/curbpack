@@ -15,7 +15,7 @@ Critical issues affecting install integrity or evidence tampering are prioritize
 
 ## Scope
 
-In scope: the `curbpack` CLI, embedded packs, GitHub Action, and `scripts/install.sh`.
+In scope: the `curbpack` CLI, embedded packs, GitHub Action, `scripts/install.sh`, and the **`curbpack` npm wrapper** (cached binary under `~/.curbpack/bin` or `%LOCALAPPDATA%\curbpack`).
 
 Out of scope: customer product repos scanned by Curbpack; third-party packs you import;
 misuse of gate results as certification claims.

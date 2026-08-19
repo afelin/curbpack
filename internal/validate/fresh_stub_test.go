@@ -93,4 +93,42 @@ func TestArt14PathBodyProductName(t *testing.T) {
 	if !strings.Contains(body, "acme") {
 		t.Fatal("Art14PathBody must insert product name")
 	}
+	if strings.Contains(body, "YYYY-MM-DD") {
+		t.Fatal("Art14PathBody must not contain YYYY-MM-DD placeholders")
+	}
+	if !strings.Contains(body, "Rehearsal status: unrehearsed draft") {
+		t.Fatal("Art14PathBody must include unrehearsed status line")
+	}
+	if !strings.Contains(body, "Drafted:") {
+		t.Fatal("Art14PathBody must include Drafted line")
+	}
+	if strings.Contains(body, "Last tabletop: 20") {
+		t.Fatal("Last tabletop must be empty — human fills after tabletop")
+	}
+	if packs.ScaffoldOverlap(body, packs.Art14RelPath(), "acme") {
+		t.Fatal("Art14PathBody must not overlap DefaultScaffoldBody")
+	}
+}
+
+func TestFixArt14NoAntiPlaceholderOnArt14File(t *testing.T) {
+	dir := t.TempDir()
+	initGit(t, dir)
+	mustWrite(t, filepath.Join(dir, "package.json"), `{"name":"fixco","version":"1.0.0"}`+"\n")
+
+	body := packs.Art14PathBody("fixco")
+	mustWrite(t, filepath.Join(dir, packs.Art14RelPath()), body)
+
+	res, err := validate.Run(validate.Options{
+		RepoRoot: dir,
+		PackIDs:  []string{"cra-baseline"},
+		Quiet:    true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range res.Payload.Failures {
+		if f.GateID == "CRA-ANTI-PLACEHOLDER" && strings.Contains(f.ASTCoordinates.TargetFile, "art14-path.md") {
+			t.Fatalf("fix template must not trigger CRA-ANTI-PLACEHOLDER on art14 alone, got %#v", f)
+		}
+	}
 }

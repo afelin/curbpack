@@ -26,6 +26,7 @@ Write starts with **curb outlines (your pathway sketch)**. After pack confirm, a
 
 ## Start
 
+- **Read-only first contact:** `npx curbpack@0.5.2 scan` — no init, no files written; scan defaults to cra-baseline + Art 14 clock
 - Repo (primary): https://github.com/RI-SE/curbpack — mirror: https://github.com/afelin/curbpack
 - Site (credibility home): https://ri-se.github.io/curbpack/ — optional mirror: https://afelin.github.io/curbpack/
 - Install (dual fence — PowerShell | macOS/Linux): https://github.com/afelin/curbpack/blob/main/docs/getting-started/install.md
@@ -36,9 +37,9 @@ Write starts with **curb outlines (your pathway sketch)**. After pack confirm, a
 - White paper: https://ri-se.github.io/curbpack/whitepaper/
 - Voice: https://github.com/RI-SE/curbpack/blob/main/docs/voice-and-terms.md
 - Assistant contract: https://github.com/RI-SE/curbpack/blob/main/docs/assistant-loop.md
-- `curb` = short alias for `curbpack` (same binary)
-- Red: `curb check --heal` then `curb ask … --propose`, then re-check — never invent green
-- Green handoff: `curb share` (check → context-pack → buyer-questions → prepare-release)
+- Red: `curbpack check --heal` then `curbpack ask … --propose`, then re-check — never invent green
+- Green handoff: `curbpack share` (check → context-pack → buyer-questions → prepare-release)
+- `curb` = short alias for `curbpack` (same binary) — only after install
 - ContextPack: `curbpack export --context-pack`
 - Thin MCP example: https://github.com/RI-SE/curbpack/tree/main/examples/mcp
 - Pin: `@v0.5.2` (Action = Linux/macOS runners; local CLI includes Windows)

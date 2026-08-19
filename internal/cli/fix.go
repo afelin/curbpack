@@ -72,7 +72,7 @@ func cmdFix(args []string) error {
 		return err
 	}
 	tty.PrintStatus("Art 14 path", true, clean+" written")
-	fmt.Printf("%s\n", tty.C(tty.Dim, "Replace YYYY-MM-DD placeholders and re-run curbpack check. Not conformity assessment."))
+	fmt.Printf("%s\n", tty.C(tty.Dim, "Gate green means reporting path documented. Fill Last tabletop: after tabletop for badge rehearsed — then re-run curbpack check. Not conformity assessment."))
 	return nil
 }
 

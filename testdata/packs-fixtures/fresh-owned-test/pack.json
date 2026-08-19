@@ -1,0 +1,33 @@
+{
+  "id": "fresh-owned-test",
+  "name": "Fresh and owned check fixture (test only)",
+  "version": "0.0.1",
+  "assurance_class": "structural_draft",
+  "description": "Test fixture for fresh and owned check kinds — not for production use.",
+  "rules": [
+    {
+      "id": "FIX-FRESH-REVIEW",
+      "severity": "medium",
+      "type": "POLICY_VIOLATION",
+      "check": "fresh",
+      "path": "docs/review-log.md",
+      "max_age_days": 365,
+      "description": "Review log must be updated within max_age_days.",
+      "remediation": "Commit an updated docs/review-log.md.",
+      "expected": "Review log commit is within freshness window."
+    },
+    {
+      "id": "FIX-OWNED-POLICY",
+      "severity": "high",
+      "type": "POLICY_VIOLATION",
+      "check": "owned",
+      "path": "docs/owned-policy.md",
+      "min_bytes": 30,
+      "bind_repo_token": true,
+      "require_git_author_email": "owner@example.com",
+      "description": "Owned policy draft must mention repo token and match author email.",
+      "remediation": "Edit docs/owned-policy.md with product token; commit as owner@example.com.",
+      "expected": "Repo-bound draft with expected git author on last commit."
+    }
+  ]
+}

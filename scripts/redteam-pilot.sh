@@ -24,9 +24,7 @@ if grep -q 'Never prefer consumer \./bin/curbpack' action.yml && \
    ! grep -E '^\s*if \[ -x (\./)?bin/curbpack' action.yml && \
    grep -q 'source=built\|source=release' action.yml; then
   ok "1 Action resolve does not prefer workspace ./bin/curbpack"
-else
-  bad "1 Action resolve must not prefer unverified ./bin/curbpack"
-fi
+else bad "1 Action resolve must not prefer unverified ./bin/curbpack"; fi
 
 # --- 2) Missing SECURITY.md + dirty README — check --diff fails ---
 TMP2="$(mktemp -d)"
@@ -48,18 +46,11 @@ set +e
 )
 diff_code=$?
 set -e
-if [[ "$diff_code" -ne 0 ]]; then
-  ok "2 check --diff fails when SECURITY.md missing (dirty README only)"
-else
+[[ "$diff_code" -ne 0 ]] && ok "2 check --diff fails when SECURITY.md missing (dirty README only)" || \
   bad "2 check --diff false-greened missing SECURITY.md"
-fi
 
 # --- 5) Claim-safety still green ---
-if ./scripts/claim-safety.sh >/dev/null 2>&1; then
-  ok "5 claim-safety green"
-else
-  bad "5 claim-safety failed"
-fi
+./scripts/claim-safety.sh >/dev/null 2>&1 && ok "5 claim-safety green" || bad "5 claim-safety failed"
 
 # --- 8) policy-graph schema_version present ---
 TMPG="$(mktemp -d)"
@@ -78,14 +69,10 @@ set +e
 graph_code=$?
 set -e
 rm -rf "$TMPG"
-if [[ "$graph_code" -eq 0 ]]; then
-  ok "8 policy-graph schema_version present"
-else
+[[ "$graph_code" -eq 0 ]] && ok "8 policy-graph schema_version present" || \
   bad "8 policy-graph export missing schema_version"
-fi
 
 # --- 10) Pack catalog freeze — only allowlisted pack ids ---
-# Unlock: freeze review + explicit PR that updates this allowlist (no CI env escape hatch).
 ALLOWED_PACK_IDS=$'cra-baseline\nhouse-policy\nmedtech-iec62304'
 pack_allow_fail=0
 for root in packs internal/packs/data; do
@@ -99,18 +86,14 @@ for root in packs internal/packs/data; do
     fi
   done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
 done
-# Embed twin must list the same three pack.json files.
 embed_count="$(find internal/packs/data -mindepth 2 -maxdepth 2 -name pack.json | wc -l | tr -d ' ')"
 tree_count="$(find packs -mindepth 2 -maxdepth 2 -name pack.json | wc -l | tr -d ' ')"
 if [[ "$embed_count" != "3" || "$tree_count" != "3" ]]; then
   echo "  pack.json count mismatch: packs=$tree_count embed=$embed_count (want 3)" >&2
   pack_allow_fail=1
 fi
-if [[ "$pack_allow_fail" -eq 0 ]]; then
-  ok "10 pack catalog allowlist (house-policy, cra-baseline, medtech-iec62304)"
-else
+[[ "$pack_allow_fail" -eq 0 ]] && ok "10 pack catalog allowlist (house-policy, cra-baseline, medtech-iec62304)" || \
   bad "10 pack catalog allowlist — new pack ids require freeze review + explicit PR"
-fi
 
 # --- 11) Import refuses theater pack without assurance_class ---
 THEATER="$(mktemp -d)"
@@ -148,46 +131,11 @@ else
 fi
 rm -rf "$THEATER" "$IMPORT_DEST"
 
-# --- 12) Stable contracts nave — sock ops + explain consumer + docs sync ---
-REQUIRED_SOCK_OPS=$'validate_delta\nget_latest_failure\ngraph_summary\nexplain_packet'
-stable_fail=0
-if [[ ! -f docs/stable-contracts.md ]]; then
-  echo "  missing docs/stable-contracts.md" >&2
-  stable_fail=1
-fi
-# Listen banner / Serve comment must advertise the four ops.
-if ! grep -q 'ops=validate_delta,get_latest_failure,graph_summary,explain_packet' internal/sock/sock.go; then
-  echo "  sock listen banner missing four ops" >&2
-  stable_fail=1
-fi
-# Every switch case "op" (except default) must be documented in stable-contracts.md.
-while IFS= read -r op; do
-  [[ -z "$op" ]] && continue
-  if ! grep -q "$op" docs/stable-contracts.md; then
-    echo "  sock op '$op' not documented in docs/stable-contracts.md" >&2
-    stable_fail=1
-  fi
-done < <(grep -E '^\s*case "' internal/sock/sock.go | sed -E 's/.*case "([^"]+)".*/\1/' | grep -v '^default$' || true)
-# Required four must exist as cases.
-while IFS= read -r op; do
-  if ! grep -qE "case \"$op\"" internal/sock/sock.go; then
-    echo "  missing sock case \"$op\"" >&2
-    stable_fail=1
-  fi
-done <<<"$REQUIRED_SOCK_OPS"
-# Explain consumer contract test must exist and pass.
-if [[ ! -f internal/contract/explain_coreward_consumer_test.go ]]; then
-  echo "  missing explain_coreward_consumer_test.go" >&2
-  stable_fail=1
-elif ! go test ./internal/contract/ -run 'TestExplainPacketCorewardConsumer|TestExplainPacketAirlock' -count=1 >/dev/null 2>&1; then
-  echo "  explain consumer / airlock contract tests failed" >&2
-  stable_fail=1
-fi
-if [[ "$stable_fail" -eq 0 ]]; then
-  ok "12 stable contracts (sock ops + explain consumer + docs sync)"
-else
-  bad "12 stable contracts nave — update docs/stable-contracts.md when changing sock ops"
-fi
+# --- 12) Stable contracts nave — internal/contract/ + go test ./... (CI) ---
+[[ -f docs/stable-contracts.md && -f internal/contract/stable_ops_test.go && \
+    -f internal/contract/explain_coreward_consumer_test.go ]] && \
+  ok "12 stable contracts (sock ops + explain consumer + docs sync)" || \
+  bad "12 stable contracts nave — missing contract tests or docs/stable-contracts.md"
 
 # --- 16) share --bundle offline schema marker ---
 TMPB="$(mktemp -d)"
@@ -207,11 +155,8 @@ set +e
 bundle_code=$?
 set -e
 rm -rf "$TMPB"
-if [[ "$bundle_code" -eq 0 ]]; then
-  ok "16 share --bundle offline evidence-bundle schema"
-else
+[[ "$bundle_code" -eq 0 ]] && ok "16 share --bundle offline evidence-bundle schema" || \
   bad "16 share --bundle must write evidence-bundle.html with schema marker"
-fi
 
 # --- 17) drift: attest then commit → attest_commit_behind ---
 TMPD="$(mktemp -d)"
@@ -234,11 +179,8 @@ set +e
 drift_code=$?
 set -e
 rm -rf "$TMPD"
-if [[ "$drift_code" -eq 0 ]]; then
-  ok "17 drift attest_commit_behind after new commit"
-else
+[[ "$drift_code" -eq 0 ]] && ok "17 drift attest_commit_behind after new commit" || \
   bad "17 drift must emit attest_commit_behind when HEAD moves past bind"
-fi
 
 # --- 18) Windows asset name + Action Linux/macOS-only lock ---
 if grep -q 'curbpack_windows_amd64.exe' scripts/install-manifest.json && \
@@ -250,13 +192,70 @@ if grep -q 'curbpack_windows_amd64.exe' scripts/install-manifest.json && \
    grep -A5 "^  heal:" action.yml | grep -q "default: 'false'" && \
    grep -q 'Unix-only' docs/stable-contracts.md; then
   ok "18 windows asset + Action Linux/macOS-only + sock Unix-only doc lock"
-else
-  bad "18 windows asset / Action honesty / sock Unix-only regression"
-fi
+else bad "18 windows asset / Action honesty / sock Unix-only regression"; fi
 
-echo ""
-echo "redteam-pilot: $PASS passed, $FAIL failed"
-if [[ "$FAIL" -gt 0 ]]; then
-  exit 1
-fi
-exit 0
+# --- 19) Forged note user_touch=ssh-agent-signed must not show verified ---
+TMP19="$(mktemp -d)"
+set +e
+(
+  set -e
+  cd "$TMP19"
+  git init -q && git config user.email "redteam@curbpack.local" && git config user.name "Redteam"
+  git commit --allow-empty -m init -q
+  head="$(git rev-parse HEAD)"
+  forge='{"schema_version":"v3.34-result-bind","commit_sha":"'"$head"'","state_hash":"deadbeef","signer":"attacker","user_touch":"ssh-agent-signed","ssh_signature":"agent-bind:fake"}'
+  git notes --ref=curbpack add -f -m "$forge" "$head"
+  out="$("$BIN" view 2>&1)"
+  echo "$out" | grep -q 'UNSIGNED — not cryptographically verified'
+  ! echo "$out" | grep -qE 'Signature:.*ssh-agent-signed'
+)
+case19_code=$?
+set -e
+rm -rf "$TMP19"
+[[ "$case19_code" -eq 0 ]] && ok "19 forged attest note must not show verified" || \
+  bad "19 forged user_touch/agent-bind must stay unsigned"
+
+# --- 20) Hand-edited latest_failure.json fake green must not false-green ---
+TMP20="$(mktemp -d)"
+set +e
+(
+  set -e
+  cd "$TMP20"
+  git init -q && git config user.email "redteam@curbpack.local" && git config user.name "Redteam"
+  git commit --allow-empty -m init -q
+  "$BIN" init --packs house-policy >/dev/null
+  head="$(git rev-parse HEAD)"
+  mkdir -p .github/curbpack/cache
+  printf '%s\n' '{"schema_version":"1","pack_id":"house-policy","readiness_score":100,"concurrency_control":{"expected_parent_commit_sha":"'"$head"'"},"failures":[]}' > .github/curbpack/cache/latest_failure.json
+  if "$BIN" check >/dev/null 2>&1; then exit 1; fi
+  printf '%s\n' '{"schema_version":"1","pack_id":"house-policy","readiness_score":100,"concurrency_control":{"expected_parent_commit_sha":"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"},"failures":[]}' > .github/curbpack/cache/latest_failure.json
+  "$BIN" export --context-pack >/dev/null 2>&1
+  grep -q '"ok": false' .github/curbpack/cache/context-pack.json
+)
+case20_code=$?
+set -e
+rm -rf "$TMP20"
+[[ "$case20_code" -eq 0 ]] && ok "20 tampered cache fake green re-validates (check + export)" || \
+  bad "20 hand-edited latest_failure.json must not false-green"
+
+# --- 21) SECURITY.md symlink outside repo refused via pathjail ---
+TMP21="$(mktemp -d)"
+set +e
+(
+  set -e
+  cd "$TMP21"
+  git init -q && git config user.email "redteam@curbpack.local" && git config user.name "Redteam"
+  git commit --allow-empty -m init -q
+  "$BIN" init --packs house-policy >/dev/null
+  rm -f SECURITY.md && mkdir -p /tmp/outside && echo "# outside" > /tmp/outside/real.md && ln -s /tmp/outside/real.md SECURITY.md
+  out="$("$BIN" check 2>&1 || true)"
+  echo "$out" | grep -qi 'path escapes repository root'
+)
+case21_code=$?
+set -e
+rm -rf "$TMP21"
+[[ "$case21_code" -eq 0 ]] && ok "21 SECURITY.md symlink escape refused (pathjail)" || \
+  bad "21 symlink escape must refuse via pathjail"
+
+echo -e "\nredteam-pilot: $PASS passed, $FAIL failed"
+exit $(( FAIL > 0 ))

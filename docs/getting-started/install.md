@@ -21,6 +21,16 @@ Stuck? [Troubleshooting](troubleshooting.md).
 
 ## Three ladders × both OS families
 
+### Ladder 0 — Read-only scan (no install)
+
+Inside any git repository — **no init**, **no files written**:
+
+```bash
+npx curbpack@0.5.2 scan
+```
+
+Shows open gate signals against the CRA-shaped default pack (`cra-baseline`), Art 14 reporting clock, and product hint. Not conformity assessment. See also: [Art 14 reporting vs handling](art14-reporting-vs-handling.md) (campaign page ships separately).
+
 ### Ladder 1 — Download + run installer (recommended)
 
 **macOS / Linux**

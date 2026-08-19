@@ -16,9 +16,9 @@ Pilot-prod (CLI + Action on other git repos) means exactly these three invariant
 
 ### Pilot deploy + freeze
 
-- Grade: `./scripts/redteam-pilot.sh` must be green (**18/18** cases).
+- Grade: `./scripts/redteam-pilot.sh` must be green (**13/13** cases).
 - **CI required check:** merges to `main` require the GitHub Actions job named **`redteam-pilot`** green under branch protection. Feature count cannot replace this scoreboard.
-- Scoreboard locks (wrap existing unit tests — no logic fork): Action resolve, `--diff` false-green, ApplyStubs `.git` jail, pack path escape, claim-safety (incl. promotion-firewall endorsement DENY), overlay compose, SARIF `ruleId`, policy-graph schema, explain airlock, pack catalog freeze, import `assurance_class`, stable sock ops, attest dirty/`--allow-dirty`, packs SHA256 pin, demo `--out` jail.
+- Scoreboard locks (wrap existing unit tests — no logic fork): Action resolve, `--diff` false-green, ApplyStubs `.git` jail, pack path escape, claim-safety (incl. promotion-firewall endorsement DENY), overlay compose, SARIF `ruleId`, policy-graph schema, explain airlock, pack catalog freeze, import `assurance_class`, stable sock ops, attest dirty/`--allow-dirty`, forged attest note, tampered cache, symlink escape, packs SHA256 pin, demo `--out` jail.
 - Pin: Action/consumers use `@v0.5.2` (prefer tag + commit SHA).
 - **30-day trust-surface freeze continues from `v0.4.0` through `v0.5.0`** (`v0.5.0` = instrument-panel honesty only; no trust-surface rewrite): Action binary resolve, `SafeJoin` / pack path jail, attest OCC / `--allow-dirty` honesty, claim-safety, and explain-packet airlock — bugfixes only; no new trust-surface features.
 - Stakeholder gap matrix: [github-readiness-gaps.md](github-readiness-gaps.md).
@@ -30,6 +30,7 @@ Pilot-prod (CLI + Action on other git repos) means exactly these three invariant
 |----------|--------------------|--------------------------|
 | Local `check` / `validate` | Deterministic gates on the files present | That a green score is a certificate |
 | `install.sh` / Action download | Binary matches release `checksums.txt` (sha256, fail-closed) | That "downloaded from GitHub" alone is enough without checksum |
+| `npm` wrapper (`npx curbpack`) | Same release asset + `checksums.txt` verify; lazy fetch to cache dir | That npm install alone attests to binary integrity without sha256 check |
 | `attest` capsule | Reproducible `state_hash` from commit + evidence digests | That unsigned or agent-bind placeholders are cryptographic signatures |
 | HPURL / proof page | Client-side compare of fragment `h=` to local pointer | Remote server verification or certification |
 | Optional sock IPC | Optional; private socket (mode `0600`); fail-open if absent | Auth beyond filesystem permissions |
@@ -37,7 +38,9 @@ Pilot-prod (CLI + Action on other git repos) means exactly these three invariant
 
 ## Install integrity
 
-Release installs (shell script and composite Action) download the binary **and** `checksums.txt`, then compare sha256. Mismatch or missing entry → refuse install. Prefer building from a known checkout when dogfooding this repo.
+Release installs (shell script, **npm wrapper**, and composite Action) download the binary **and** `checksums.txt`, then compare sha256. Mismatch or missing entry → refuse install. Prefer building from a known checkout when dogfooding this repo.
+
+**npm wrapper:** `npx curbpack` / `npm install -g curbpack` use a thin Node entrypoint. Default pin is **`v0.5.2`** from bundled `install-manifest.json` (not floating `latest` unless `CURBPACK_VERSION=latest`). No network `postinstall` — download runs on first exec. Cached path: `~/.curbpack/bin` (Unix) or `%LOCALAPPDATA%\curbpack` (Windows).
 
 The composite Action does **not** prefer a consumer `./bin/curbpack` (that path skipped checksums and enabled PR binary hijack). In this repo it builds from `go.mod`; elsewhere it downloads a release and verifies sha256.
 

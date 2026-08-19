@@ -100,15 +100,24 @@ func PackPlainNames(packIDCSV string) string {
 	return strings.Join(names, "; ")
 }
 
-// WriteBuyerQuestions emits buyer-questions.md + .json under cache (or outPath stem).
-func WriteBuyerQuestions(root string, packIDs []string, outPath string) (string, int, error) {
-	res, err := validate.Run(validate.Options{RepoRoot: root, PackIDs: packIDs, Quiet: true})
+// BuildBuyerQuestionsReport runs pack gates and assembles the checklist report (no filesystem writes).
+func BuildBuyerQuestionsReport(root string, packIDs []string) (BuyerQuestionsReport, error) {
+	return buildBuyerQuestionsReport(root, packIDs, false)
+}
+
+// BuildBuyerQuestionsReportReadOnly is like BuildBuyerQuestionsReport but does not write cache under .github/.
+func BuildBuyerQuestionsReportReadOnly(root string, packIDs []string) (BuyerQuestionsReport, error) {
+	return buildBuyerQuestionsReport(root, packIDs, true)
+}
+
+func buildBuyerQuestionsReport(root string, packIDs []string, readOnly bool) (BuyerQuestionsReport, error) {
+	res, err := validate.Run(validate.Options{RepoRoot: root, PackIDs: packIDs, Quiet: true, ReadOnly: readOnly})
 	if err != nil {
-		return "", 0, err
+		return BuyerQuestionsReport{}, err
 	}
 	questions, err := CollectBuyerQuestions(root, packIDs, res)
 	if err != nil {
-		return "", 0, err
+		return BuyerQuestionsReport{}, err
 	}
 	ids := packIDs
 	if len(ids) == 0 {
@@ -116,37 +125,78 @@ func WriteBuyerQuestions(root string, packIDs []string, outPath string) (string,
 	}
 	composed, _, err := packs.Compose(ids)
 	if err != nil {
-		return "", 0, err
+		return BuyerQuestionsReport{}, err
 	}
 	assurance := strings.TrimSpace(composed.AssuranceClass)
 	if assurance == "" {
 		assurance = buyerQuestionsAssuranceClass
 	}
-	report := BuyerQuestionsReport{
+	return BuyerQuestionsReport{
 		SchemaVersion:     "1",
 		Note:              "Local pack gates prepare evidence for human review. Not CE / not notified-body. Not a conformity assessment.",
 		PackID:            composed.ID,
 		AssuranceClass:    assurance,
 		AttestationStatus: attestationStatus(root),
 		Questions:         questions,
-	}
+	}, nil
+}
 
-	mdPath, jsonPath := buyerQuestionsPaths(root, outPath)
-	if err := os.MkdirAll(filepath.Dir(mdPath), 0o755); err != nil {
-		return "", 0, err
-	}
-	md := formatBuyerQuestionsMarkdown(report)
-	if err := os.WriteFile(mdPath, []byte(md), 0o644); err != nil {
-		return "", 0, err
-	}
-	b, err := json.MarshalIndent(report, "", "  ")
+// WriteBuyerQuestions emits buyer-questions.md + .json under cache (or outPath stem).
+func WriteBuyerQuestions(root string, packIDs []string, outPath string) (string, int, error) {
+	report, err := BuildBuyerQuestionsReport(root, packIDs)
 	if err != nil {
 		return "", 0, err
 	}
-	if err := os.WriteFile(jsonPath, append(b, '\n'), 0o644); err != nil {
+	mdPath, jsonPath := buyerQuestionsPaths(root, outPath)
+	if err := writeBuyerQuestionsFiles(report, mdPath, jsonPath); err != nil {
 		return "", 0, err
 	}
-	return mdPath, len(questions), nil
+	return mdPath, len(report.Questions), nil
+}
+
+// SupplierQuestionsPaths resolves review-pack/supplier-checklist paths (or --out stem).
+func SupplierQuestionsPaths(root, outPath string) (mdPath, jsonPath string) {
+	if outPath == "" {
+		base := filepath.Join(root, "review-pack", "supplier-checklist")
+		return base + ".md", base + ".json"
+	}
+	if !filepath.IsAbs(outPath) {
+		outPath = filepath.Join(root, outPath)
+	}
+	return buyerQuestionsStemPaths(outPath)
+}
+
+// WriteSupplierChecklist writes supplier-checklist.md + .json under review-pack/ (or outPath stem).
+func WriteSupplierChecklist(root string, packIDs []string, outPath string) (string, int, error) {
+	report, err := BuildBuyerQuestionsReportReadOnly(root, packIDs)
+	if err != nil {
+		return "", 0, err
+	}
+	return WriteSupplierChecklistReport(root, report, outPath)
+}
+
+// WriteSupplierChecklistReport writes a pre-built report to review-pack/ (or outPath stem).
+func WriteSupplierChecklistReport(root string, report BuyerQuestionsReport, outPath string) (string, int, error) {
+	mdPath, jsonPath := SupplierQuestionsPaths(root, outPath)
+	if err := writeBuyerQuestionsFiles(report, mdPath, jsonPath); err != nil {
+		return "", 0, err
+	}
+	return mdPath, len(report.Questions), nil
+}
+
+func writeBuyerQuestionsFiles(report BuyerQuestionsReport, mdPath, jsonPath string) error {
+	if err := os.MkdirAll(filepath.Dir(mdPath), 0o755); err != nil {
+		return err
+	}
+	md := FormatBuyerQuestionsMarkdown(report)
+	if err := os.WriteFile(mdPath, []byte(md), 0o644); err != nil {
+		return err
+	}
+	b, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(jsonPath, append(b, '\n'), 0o644)
 }
 
 func buyerQuestionsPaths(root, outPath string) (mdPath, jsonPath string) {
@@ -154,6 +204,10 @@ func buyerQuestionsPaths(root, outPath string) (mdPath, jsonPath string) {
 		base := filepath.Join(root, ".github", "curbpack", "cache", "buyer-questions")
 		return base + ".md", base + ".json"
 	}
+	return buyerQuestionsStemPaths(outPath)
+}
+
+func buyerQuestionsStemPaths(outPath string) (mdPath, jsonPath string) {
 	ext := strings.ToLower(filepath.Ext(outPath))
 	stem := strings.TrimSuffix(outPath, ext)
 	switch ext {
@@ -180,7 +234,8 @@ func humanQuestionForRule(r packs.Rule) string {
 	return "For human review: " + body
 }
 
-func formatBuyerQuestionsMarkdown(report BuyerQuestionsReport) string {
+// FormatBuyerQuestionsMarkdown renders the human-review checklist as Markdown.
+func FormatBuyerQuestionsMarkdown(report BuyerQuestionsReport) string {
 	var b strings.Builder
 	b.WriteString("# Buyer questions (human review checklist)\n\n")
 	b.WriteString("> Local pack gates. Humans review. Not conformity assessment.\n")
@@ -201,6 +256,23 @@ func formatBuyerQuestionsMarkdown(report BuyerQuestionsReport) string {
 		)
 	}
 	b.WriteString("\n")
+	return b.String()
+}
+
+// FormatSupplierEmailTemplate returns a claim-safe copy-paste email for suppliers.
+func FormatSupplierEmailTemplate(report BuyerQuestionsReport) string {
+	packLabel := strings.TrimSpace(report.PackID)
+	if packLabel == "" {
+		packLabel = "our product"
+	}
+	var b strings.Builder
+	b.WriteString("Subject: Supplier evidence checklist — human review (not certification)\n\n")
+	b.WriteString("Hi,\n\n")
+	fmt.Fprintf(&b, "We are preparing structural evidence for %s under local pack gates. ", packLabel)
+	b.WriteString("This is not a conformity assessment and does not claim CE marking or notified-body approval.\n\n")
+	b.WriteString("Please review the checklist below (or the attached supplier-checklist.md) and confirm the artifact paths listed, or share your equivalent documentation.\n\n")
+	b.WriteString("Thanks,\n")
+	b.WriteString("[Your name]\n")
 	return b.String()
 }
 

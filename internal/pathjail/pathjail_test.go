@@ -1,6 +1,9 @@
 package pathjail_test
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/afelin/curbpack/internal/pathjail"
@@ -28,5 +31,22 @@ func TestAllowedRelMatchesValidate(t *testing.T) {
 		if !allowed && err == nil {
 			t.Fatalf("AllowedRel false but ValidateRel ok for %q", c)
 		}
+	}
+}
+
+func TestJoin_RefusesSymlinkEscape(t *testing.T) {
+	root := t.TempDir()
+	outside := t.TempDir()
+	target := filepath.Join(outside, "real.md")
+	if err := os.WriteFile(target, []byte("outside\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "SECURITY.md")
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := pathjail.Join(root, "SECURITY.md")
+	if err == nil || !strings.Contains(err.Error(), "escapes") {
+		t.Fatalf("Join must refuse symlink escape, got %v", err)
 	}
 }
